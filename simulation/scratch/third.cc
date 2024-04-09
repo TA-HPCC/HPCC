@@ -673,6 +673,8 @@ int main(int argc, char *argv[])
 		IntHeader::mode = IntHeader::NORMAL;
 	else if (cc_mode == 10) // hpcc-pint
 		IntHeader::mode = IntHeader::PINT;
+	else if (cc_mode == 11) // DINT, use int
+		IntHeader::mode = IntHeader::NORMAL;
 	else // others, no extra header
 		IntHeader::mode = IntHeader::NONE;
 
@@ -930,7 +932,10 @@ int main(int argc, char *argv[])
 	for (uint32_t i = 0; i < node_num; i++){
 		if (n.Get(i)->GetNodeType() == 1){ // switch
 			Ptr<SwitchNode> sw = DynamicCast<SwitchNode>(n.Get(i));
-			sw->SetAttribute("CcMode", UintegerValue(cc_mode));
+			if (cc_mode == 11)
+				sw->SetAttribute("CcMode", UintegerValue(3));
+			else
+				sw->SetAttribute("CcMode", UintegerValue(cc_mode));	
 			sw->SetAttribute("MaxRtt", UintegerValue(maxRtt));
 		}
 	}
