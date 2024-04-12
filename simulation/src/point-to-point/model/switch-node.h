@@ -25,6 +25,24 @@ class SwitchNode : public Node{
 	uint32_t m_lastPktSize[pCnt];
 	uint64_t m_lastPktTs[pCnt]; // ns
 	double m_u[pCnt];
+	//for DINT var
+	static const uint32_t tel_insertion_min_window = 1000000;
+	static const uint32_t obs_window = 1000000; // 1 Seg = 1000000 microseg
+	static const uint32_t max_t = 5000000;
+
+	static const uint32_t alpha_1 = 9;
+	static const uint32_t alpha_2 = 3; //shift divisor
+
+
+	static const uint32_t k = 16;
+	static const uint32_t div_shift = 4;
+
+	/***************************************************************/
+
+	static const uint32_t div_10 = 0x1999999A; /// Used to divide a number by 10
+	static const uint32_t div_100 = 0x28F5C29;
+	static const uint32_t base_delta = 300;
+	//end
 
 protected:
 	bool m_ecnEnabled;
@@ -39,6 +57,8 @@ private:
 	static uint32_t EcmpHash(const uint8_t* key, size_t len, uint32_t seed);
 	void CheckAndSendPfc(uint32_t inDev, uint32_t qIndex);
 	void CheckAndSendResume(uint32_t inDev, uint32_t qIndex);
+	//For DINT
+	void update_delta(uint32_t &flow_id, uint32_t comparator, uint32_t &delta);
 public:
 	Ptr<SwitchMmu> m_mmu;
 
