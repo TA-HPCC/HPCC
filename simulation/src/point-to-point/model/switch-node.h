@@ -44,6 +44,20 @@ class SwitchNode : public Node{
 	static const uint32_t base_delta = 300;
 	//end
 
+	//LINT
+	static const uint8_t alpha = 1; // Equals to 2^-1
+	static const uint8_t delta = 6; // Equals to 2^-1
+
+	std::array<uint32_t, 65536> pres_byte_cnt_reg;
+	std::array<uint32_t, 65536> telemetry_byte_cnt_reg;
+	std::array<uint32_t, 65536> packets_cnt_reg;
+
+	std::array<time_t, 65536> previous_insertion_reg;
+
+	std::array<uint32_t, 65536> past_device_obs_reg;
+	std::array<uint32_t, 65536> past_reported_obs_reg;
+	//end
+
 protected:
 	bool m_ecnEnabled;
 	uint32_t m_ccMode;
