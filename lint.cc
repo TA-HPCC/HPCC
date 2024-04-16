@@ -316,7 +316,7 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
                 if (previousInsertion == 0)
                     {
                         previousInsertion = time;
-                        previous_insertion_reg[flow] = time;
+                        previous_insertion_reg[flow] = now;
                     }
 
                 if (time - previousInsertion >= obs_window)

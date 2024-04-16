@@ -52,7 +52,7 @@ class SwitchNode : public Node{
 	std::array<uint32_t, 65536> telemetry_byte_cnt_reg;
 	std::array<uint32_t, 65536> packets_cnt_reg;
 
-	std::array<time_t, 65536> previous_insertion_reg;
+	std::array<Time, 65536> previous_insertion_reg;
 
 	std::array<uint32_t, 65536> past_device_obs_reg;
 	std::array<uint32_t, 65536> past_reported_obs_reg;
