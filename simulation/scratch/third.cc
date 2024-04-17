@@ -936,8 +936,6 @@ int main(int argc, char *argv[])
 			Ptr<SwitchNode> sw = DynamicCast<SwitchNode>(n.Get(i));
 			if (cc_mode == 11)
 				sw->SetAttribute("CcMode", UintegerValue(3));
-			elif (cc_mode == 12)
-				sw->SetAttribute("CcMode", UintegerValue(3));
 			else
 				sw->SetAttribute("CcMode", UintegerValue(cc_mode));	
 			sw->SetAttribute("MaxRtt", UintegerValue(maxRtt));

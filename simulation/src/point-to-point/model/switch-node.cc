@@ -296,7 +296,43 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 					ih->SetPower(power);
 
 				m_u[ifIndex] = newU;
-			}
+			} else if (m_ccMode == 12){ // LINT
+                Time now = Simulator::Now();
+                uint32_t time = now.GetTimeStep();
+                // uint32_t flow = t.GetFlowId();
+                
+                uint32_t amt_bytes;
+                amt_bytes = pres_byte_cnt_reg[ifIndex];
+                amt_bytes += p->GetSize(); // needs confirmation
+
+                uint32_t previousInsertion;
+                if (ifIndex == 0) {
+                    previousInsertion = 0;
+                }
+                else{
+                    previousInsertion = m_lastPktTs[ifIndex - 1]; // needs confirmation
+                }
+
+                if (previousInsertion == 0)
+                    {
+                        previousInsertion = time;
+                        previous_insertion_reg[ifIndex] = now;
+                    }
+
+                if (time - previousInsertion >= obs_window)
+                    {
+                        bool report = ReportMetrics(ifIndex, amt_bytes);
+
+                        if (report)
+                            {
+                                ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
+
+                                previous_insertion_reg[ifIndex] = now;
+                            }
+
+                        pres_byte_cnt_reg[ifIndex] = 0;
+                    }
+            }
 		}
 	}
 	m_txBytes[ifIndex] += p->GetSize();
@@ -325,4 +361,41 @@ int SwitchNode::log2apprx(int x, int b, int m, int l){
 	return int(log2(x) * (1<<logres_shift(b, l)));
 }
 
-} /* namespace ns3 */
+bool SwitchNode::ReportMetrics(uint32_t &flowId, uint32_t presAmtBytes) {    
+    bool report = false;
+	
+
+    int32_t currentObs = presAmtBytes;
+
+    uint32_t pastDeviceObs = past_device_obs_reg[flowId];
+    uint32_t pastReportedObs = past_reported_obs_reg[flowId];
+
+    int32_t latestDeviceObs = (currentObs - pastDeviceObs) >> alpha;
+    latestDeviceObs = latestDeviceObs + pastDeviceObs;
+    if (pastDeviceObs == 0)
+    {
+        latestDeviceObs = currentObs;
+    }
+
+    int32_t deviation = latestDeviceObs - pastReportedObs;
+    if (deviation > (latestDeviceObs >> delta) || deviation < -1 * (latestDeviceObs >> delta))
+    {
+        report = true;
+
+        int32_t latestReportedObs = (currentObs - pastReportedObs) >> alpha;
+        latestReportedObs = latestReportedObs + pastReportedObs;
+        if (pastReportedObs == 0)
+        {
+            latestReportedObs = currentObs;
+        }
+        past_reported_obs_reg[flowId] = latestReportedObs;
+    }
+
+    past_device_obs_reg[flowId] = latestDeviceObs;
+
+    return report;
+}
+
+
+
+}

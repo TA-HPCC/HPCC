@@ -73,6 +73,8 @@ private:
 	void CheckAndSendResume(uint32_t inDev, uint32_t qIndex);
 	//For DINT
 	void update_delta(uint32_t &flow_id, uint32_t comparator, uint32_t &delta);
+	// LINT
+	bool ReportMetrics(uint32_t &flowId, uint32_t presAmtBytes);
 public:
 	Ptr<SwitchMmu> m_mmu;
 
