@@ -57,21 +57,21 @@ SwitchNode::SwitchNode(){
 		m_lastPktSize[i] = m_lastPktTs[i] = 0;
 	for (uint32_t i = 0; i < pCnt; i++)
 		m_u[i] = 0;
-	max_t = Time(5000000);
+	max_t = 5000000;
 }
 
 // Updates the dynamic threshold according to the SIMPLE MOVING AVERAGE function of the last k measured throughputs
-void SwitchNode::update_delta(uint32_t &flow_id, uint32_t comparator, uint32_t &delta) {
+void SwitchNode::update_delta(uint32_t &ifIndex, uint32_t comparator, uint32_t &delta) {
     uint32_t ct, sum;
-    count_reg.read(ct, flow_id);
-    n_last_values_reg.read(sum, flow_id);
+    ct = count_reg[ifIndex];
+    sum = n_last_values_reg[ifIndex];
     if (ct == k) {
         uint32_t mean, old_m;
         mean = sum >> div_shift;
 
         delta = static_cast<uint32_t>(((div_10 * static_cast<uint64_t>(mean)) >> 32));
 
-        delta_reg.write(flow_id, delta);
+        delta_reg[ifIndex] = delta;
         sum = 0;
         ct = 0;
     }
@@ -79,16 +79,16 @@ void SwitchNode::update_delta(uint32_t &flow_id, uint32_t comparator, uint32_t &
     sum += comparator;
     ct++;
 
-    n_last_values_reg.write(flow_id, sum);
-    count_reg.write(flow_id, ct);
+    n_last_values_reg[ifIndex] = sum;
+    count_reg[ifIndex] = ct;
 }
 
-Time max(Time v1,Time v2){
+uint32_t max(uint32_t v1,uint32_t v2){
     if(v1 > v2) return v1;
     else return v2;
 }
 
-Time min(Time v1,Time v2){
+uint32_t min(uint32_t v1,uint32_t v2){
     if(v1 < v2) return v1;
     else return v2;
 }
@@ -334,28 +334,35 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				} else if (m_ccMode == 11){ //DINT
                 // Get current simulator time
                 Time now = Simulator::Now();
-
+				Time obs_last_seen = obs_last_seen_reg[ifIndex];
+				uint32_t val_tel_insertion_window = tel_insertion_window_reg[ifIndex].GetTimeStep();
 				// If no last time, then set it to now
-				if (last_obs.IsZero())
+				if (obs_last_seen.IsZero())
 				{
-					last_obs = now;
+					obs_last_seen = now;
 				}
 				
                 // Get the current time step
                 uint32_t dt = now.GetTimeStep();
             
                 //pseudo code DINT
-                if (dt - last_obs.GetTimeStep() >= obs_window)
+                if (dt - obs_last_seen.GetTimeStep() >= obs_window)
                 {
                     uint32_t diff_bytes = p->GetSize() - m_lastPktSize[ifIndex];
                     if (diff_bytes > delta || diff_bytes < -1*((int<32>)delta))
                     {
-                        tel_insertion_window = tel_insertion_min_window;
+                        val_tel_insertion_window = tel_insertion_min_window;
                     } else
                     {
-                        tel_insertion_window = min(max_t, (tel_insertion_window*alpha_1)>>alpha_2);
+                        val_tel_insertion_window = min(max_t, (val_tel_insertion_window*alpha_1)>>alpha_2);
                     }
-                    update_delta()
+                    update_delta(ifIndex, pres_amt_bytes, delta);
+					past_byte_cnt_reg[ifIndex] = pres_amt_bytes;
+					pres_byte_cnt_reg[ifIndex] = 0;
+
+					//update tel insertion window
+					tel_insertion_window_reg[ifIndex] = Time(val_tel_insertion_window);
+					obs_last_seen_reg[ifIndex] = now;
                     //
                 }
             
