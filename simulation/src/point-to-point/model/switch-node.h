@@ -27,8 +27,8 @@ class SwitchNode : public Node{
 	double m_u[pCnt];
 	//for DINT var
 	static const uint32_t tel_insertion_min_window = 1000000;
-	static const uint32_t obs_window = 1000000; // 1 Seg = 1000000 microseg
-	static const uint32_t max_t = 5000000;
+	static const int64_t obs_window = 1000000; // 1 Seg = 1000000 microseg
+	
 
 	static const uint32_t alpha_1 = 9;
 	static const uint32_t alpha_2 = 3; //shift divisor
@@ -48,7 +48,8 @@ protected:
 	bool m_ecnEnabled;
 	uint32_t m_ccMode;
 	uint64_t m_maxRtt;
-
+	Time last_obs;
+	Time max_t;
 	uint32_t m_ackHighPrio; // set high priority for ACK/NACK
 
 private:
