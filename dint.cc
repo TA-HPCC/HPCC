@@ -57,7 +57,7 @@ SwitchNode::SwitchNode(){
 		m_lastPktSize[i] = m_lastPktTs[i] = 0;
 	for (uint32_t i = 0; i < pCnt; i++)
 		m_u[i] = 0;
-	
+	max_t = Time(5000000);
 }
 
 // Updates the dynamic threshold according to the SIMPLE MOVING AVERAGE function of the last k measured throughputs
@@ -83,12 +83,12 @@ void SwitchNode::update_delta(uint32_t &flow_id, uint32_t comparator, uint32_t &
     count_reg.write(flow_id, ct);
 }
 
-time_t max(time_t v1,time_t v2){
+Time max(Time v1,Time v2){
     if(v1 > v2) return v1;
     else return v2;
 }
 
-time_t min(time_t v1,time_t v2){
+Time min(Time v1,Time v2){
     if(v1 < v2) return v1;
     else return v2;
 }
@@ -330,14 +330,22 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 					ih->SetPower(power);
 
 				m_u[ifIndex] = newU;
-			} else if (m_ccMode == 11){ //DINT
+
+				} else if (m_ccMode == 11){ //DINT
                 // Get current simulator time
                 Time now = Simulator::Now();
+
+				// If no last time, then set it to now
+				if (last_obs.IsZero())
+				{
+					last_obs = now;
+				}
+				
                 // Get the current time step
                 uint32_t dt = now.GetTimeStep();
             
                 //pseudo code DINT
-                if (dt - last_time >= obs_window)
+                if (dt - last_obs.GetTimeStep() >= obs_window)
                 {
                     uint32_t diff_bytes = p->GetSize() - m_lastPktSize[ifIndex];
                     if (diff_bytes > delta || diff_bytes < -1*((int<32>)delta))
@@ -347,7 +355,7 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
                     {
                         tel_insertion_window = min(max_t, (tel_insertion_window*alpha_1)>>alpha_2);
                     }
-                    upda
+                    update_delta()
                     //
                 }
             
