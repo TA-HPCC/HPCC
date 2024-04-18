@@ -42,12 +42,12 @@ class SwitchNode : public Node{
 	static const uint32_t div_10 = 0x1999999A; /// Used to divide a number by 10
 	static const uint32_t div_100 = 0x28F5C29;
 	static const uint32_t base_delta = 300;
-	std::array<uint32_t, pCnt> past_byte_cnt_reg;
-	std::array<Time, pCnt> obs_last_seen_reg;
-	std::array<Time, pCnt> tel_insertion_window_reg;
-	std::array<uint32_t, pCnt> delta_reg;
-	std::array<uint32_t, pCnt> n_last_values_reg{};
-	std::array<uint32_t, pCnt> count_reg{};
+	std::vector<uint32_t> past_byte_cnt_reg;
+	std::vector<Time> obs_last_seen_reg;
+	std::vector<Time> tel_insertion_window_reg;
+	std::vector<uint32_t> delta_reg;
+	std::vector<uint32_t> n_last_values_reg;
+	std::vector<uint32_t> count_reg;
 	
 	//end
 
@@ -55,14 +55,14 @@ class SwitchNode : public Node{
 	static const uint8_t alpha = 1; // Equals to 2^-1
 	static const uint8_t delta = 6; // Equals to 2^-1
 
-	std::array<uint32_t, pCnt> pres_byte_cnt_reg;
-	std::array<uint32_t, pCnt> telemetry_byte_cnt_reg;
-	std::array<uint32_t, pCnt> packets_cnt_reg;
+	std::vector<uint32_t> pres_byte_cnt_reg;
+	std::vector<uint32_t> telemetry_byte_cnt_reg;
+	std::vector<uint32_t> packets_cnt_reg;
 
-	std::array<Time, pCnt> previous_insertion_reg;
+	std::vector<Time> previous_insertion_reg;
 
-	std::array<uint32_t, pCnt> past_device_obs_reg;
-	std::array<uint32_t, pCnt> past_reported_obs_reg;
+	std::vector<uint32_t> past_device_obs_reg;
+	std::vector<uint32_t> past_reported_obs_reg;
 	//end
 
 protected:
