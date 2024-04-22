@@ -57,7 +57,7 @@ SwitchNode::SwitchNode(){
 		m_lastPktSize[i] = m_lastPktTs[i] = 0;
 	for (uint32_t i = 0; i < pCnt; i++)
 		m_u[i] = 0;
-	max_t = 100000;
+	max_t = 50000;
 	past_byte_cnt_reg.assign(pCnt,0);
 	obs_last_seen_reg.assign(pCnt, Time());
 	tel_insertion_window_reg.assign(pCnt, Time());
@@ -73,15 +73,15 @@ SwitchNode::SwitchNode(){
 }
 
 // Updates the dynamic threshold according to the SIMPLE MOVING AVERAGE function of the last k measured throughputs
-void SwitchNode::update_delta(uint32_t &ifIndex, uint32_t comparator, uint32_t &delta) {
+void SwitchNode::update_delta(uint32_t &ifIndex, uint32_t comparator, int32_t &delta) {
     uint32_t ct, sum;
     ct = count_reg.at(ifIndex);
     sum = n_last_values_reg.at(ifIndex);
     if (ct == k) {
-        uint32_t mean, old_m;
+        int32_t mean, old_m;
         mean = sum >> div_shift;
 
-        delta = static_cast<uint32_t>(((div_10 * static_cast<uint64_t>(mean)) >> 32));
+        delta = static_cast<int32_t>(((div_10 * static_cast<int64_t>(mean)) >> 32));
 
         delta_reg.at(ifIndex) = delta;
         sum = 0;
@@ -379,24 +379,12 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				Time obs_last_seen = obs_last_seen_reg.at(ifIndex);
 				// If no tel_insertion_window, set it to min
 				uint64_t val_tel_insertion_window;
-				try
-				{
-					val_tel_insertion_window = tel_insertion_window_reg.at(ifIndex).GetNanoSeconds();
-				}
-				catch(const std::exception& e)
+				Time tel_insertion_window;
+				if (tel_insertion_window.IsZero())
 				{
 					val_tel_insertion_window = Time(tel_insertion_min_window).GetNanoSeconds();
 					tel_insertion_window_reg.at(ifIndex) = Time(val_tel_insertion_window);
 				}
-				
-				// If no last time, then set it to now
-				if (obs_last_seen.IsZero())
-				{
-					obs_last_seen_reg.at(ifIndex) = now;
-				}
-				
-                // Get the current time step
-                uint32_t dt = now.GetNanoSeconds();
 				
 				// Get current and past amount of bytes
 				uint32_t amt_packets, pres_amt_bytes, delta, past_amt_bytes;
@@ -404,32 +392,45 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				amt_packets = packets_cnt_reg.at(ifIndex)+1;
 				packets_cnt_reg.at(ifIndex) = amt_packets;
 				pres_amt_bytes = pres_byte_cnt_reg.at(ifIndex) + p->GetSize();
-				pres_byte_cnt_reg.at(ifIndex) = pres_byte_cnt_reg.at(ifIndex) + p->GetSize();
+				pres_byte_cnt_reg.at(ifIndex) = pres_amt_bytes;
 				telemetry_byte_cnt_reg.at(ifIndex) = telemetry_byte_cnt_reg.at(ifIndex) + p->GetSize();
-
+				past_amt_bytes = past_byte_cnt_reg.at(ifIndex);
 				// Set delta
-				uint32_t dint_delta = 0;
+				int32_t dint_delta = 0;
 				if(delta_reg.at(ifIndex) == 0) {
 					dint_delta = base_delta;
 				} else {
 					dint_delta = delta_reg.at(ifIndex);
 				}
-				delta_reg.at(ifIndex) = delta;
+				delta_reg.at(ifIndex) = dint_delta;
                 // pseudo code DINT
-				
-                if (dt - obs_last_seen.GetNanoSeconds() >= obs_window){
-                    uint32_t diff_bytes = pres_amt_bytes - past_amt_bytes;
-                    if (diff_bytes > dint_delta || diff_bytes < -1*dint_delta)
-                    {
+				// If no last time, then set it to now
+				if (obs_last_seen.IsZero())
+				{
+					obs_last_seen_reg.at(ifIndex) = now;
+					obs_last_seen = now;
+				}
+                if (now.GetNanoSeconds() - obs_last_seen.GetNanoSeconds() >= obs_window){
+                    int32_t diff_bytes = pres_amt_bytes - past_amt_bytes;
+					// std::cout << diff_bytes;
+					// std::cout << "\n";
+					// std::cout << "delta : " << dint_delta;
+					// std::cout << "\n";
+					// std::exit(0);
+                    if (diff_bytes > dint_delta || diff_bytes < -1*dint_delta){
                         val_tel_insertion_window = tel_insertion_min_window;
-                    } else
-                    {
-                        val_tel_insertion_window = min(max_t, (val_tel_insertion_window*alpha_1)>>alpha_2);
+                    } else {
+                        val_tel_insertion_window = min(max_t, ((val_tel_insertion_window*alpha_1)>>alpha_2));
                     }
+					// std::cout << val_tel_insertion_window;
+					// std::cout << "\n";
                     update_delta(ifIndex, pres_amt_bytes, dint_delta);
 					past_byte_cnt_reg.at(ifIndex) = pres_amt_bytes;
 					pres_byte_cnt_reg.at(ifIndex) = 0;
-
+					// std::cout << pres_byte_cnt_reg.at(ifIndex);
+					// std::cout << "\n";
+					// std::cout << past_byte_cnt_reg.at(ifIndex);
+					// std::cout << "\n";
 					// Update tel insertion window
 					tel_insertion_window_reg.at(ifIndex) = Time(val_tel_insertion_window);
 					obs_last_seen_reg.at(ifIndex) = now;
@@ -443,8 +444,14 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 					previousInsertion = now;
 					previous_insertion_reg.at(ifIndex) = now;
 				}
-
-				if(now.GetMicroSeconds() - previousInsertion.GetMicroSeconds() >= telInsertionWindow.GetMicroSeconds()){
+				// std::cout << now.GetNanoSeconds() - previousInsertion.GetNanoSeconds();
+				// std::cout << "\n";
+				if (telInsertionWindow.GetNanoSeconds() > 15000)
+				{
+					std::exit(0);
+				}
+				
+				if(now.GetNanoSeconds() - previousInsertion.GetNanoSeconds() >= telInsertionWindow.GetNanoSeconds()){
 					 // Insert telemetry
 					
                    	ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
