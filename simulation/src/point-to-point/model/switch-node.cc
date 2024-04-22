@@ -57,7 +57,7 @@ SwitchNode::SwitchNode(){
 		m_lastPktSize[i] = m_lastPktTs[i] = 0;
 	for (uint32_t i = 0; i < pCnt; i++)
 		m_u[i] = 0;
-	max_t = 5000000;
+	max_t = 100000;
 	past_byte_cnt_reg.assign(pCnt,0);
 	obs_last_seen_reg.assign(pCnt, Time());
 	tel_insertion_window_reg.assign(pCnt, Time());
@@ -381,22 +381,23 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				uint64_t val_tel_insertion_window;
 				try
 				{
-					val_tel_insertion_window = tel_insertion_window_reg.at(ifIndex).GetMicroSeconds();
+					val_tel_insertion_window = tel_insertion_window_reg.at(ifIndex).GetNanoSeconds();
 				}
 				catch(const std::exception& e)
 				{
-					val_tel_insertion_window = Time(tel_insertion_min_window).GetMicroSeconds();
+					val_tel_insertion_window = Time(tel_insertion_min_window).GetNanoSeconds();
 					tel_insertion_window_reg.at(ifIndex) = Time(val_tel_insertion_window);
 				}
 				
 				// If no last time, then set it to now
 				if (obs_last_seen.IsZero())
 				{
-					obs_last_seen = now;
+					obs_last_seen_reg.at(ifIndex) = now;
 				}
 				
                 // Get the current time step
-                uint32_t dt = now.GetMicroSeconds();
+                uint32_t dt = now.GetNanoSeconds();
+				
 				// Get current and past amount of bytes
 				uint32_t amt_packets, pres_amt_bytes, delta, past_amt_bytes;
 
@@ -415,8 +416,9 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				}
 				delta_reg.at(ifIndex) = delta;
                 // pseudo code DINT
-                if (dt - obs_last_seen.GetMicroSeconds() >= obs_window){
-                    uint32_t diff_bytes = p->GetSize() - m_lastPktSize[ifIndex];
+				
+                if (dt - obs_last_seen.GetNanoSeconds() >= obs_window){
+                    uint32_t diff_bytes = pres_amt_bytes - past_amt_bytes;
                     if (diff_bytes > dint_delta || diff_bytes < -1*dint_delta)
                     {
                         val_tel_insertion_window = tel_insertion_min_window;
@@ -444,6 +446,7 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 
 				if(now.GetMicroSeconds() - previousInsertion.GetMicroSeconds() >= telInsertionWindow.GetMicroSeconds()){
 					 // Insert telemetry
+					
                    	ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
 					previous_insertion_reg.at(ifIndex) = now;
 				}
