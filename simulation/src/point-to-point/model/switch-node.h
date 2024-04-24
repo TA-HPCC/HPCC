@@ -28,19 +28,19 @@ class SwitchNode : public Node{
 	//for DINT var
 	static const uint32_t tel_insertion_min_window = 10000;
 	static const int64_t obs_window = 10000; // 1 Seg = 1000000 microseg
-	
-
-	static const uint32_t alpha_1 = 9;
-	static const uint32_t alpha_2 = 3; //shift divisor
 
 
-	static const uint32_t k = 16;
-	static const uint32_t div_shift = 4;
+	static const int32_t alpha_1 = 9;
+	static const int32_t alpha_2 = 3; //shift divisor
+
+
+	static const int32_t k = 16;
+	static const int32_t div_shift = 4;
 
 	/***************************************************************/
 
-	static const uint32_t div_10 = 0x1999999A; /// Used to divide a number by 10
-	static const uint32_t div_100 = 0x28F5C29;
+	static const int64_t div_10 = 0x1999999A; /// Used to divide a number by 10
+	// static const int64_t div_100 = 0x28F5C29;
 	static const int32_t base_delta = 300;
 	std::vector<uint32_t> past_byte_cnt_reg;
 	std::vector<Time> obs_last_seen_reg;
