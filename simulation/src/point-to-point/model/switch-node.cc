@@ -57,7 +57,7 @@ SwitchNode::SwitchNode(){
 		m_lastPktSize[i] = m_lastPktTs[i] = 0;
 	for (uint32_t i = 0; i < pCnt; i++)
 		m_u[i] = 0;
-	max_t = 50000;
+	max_t = 500000;
 	past_byte_cnt_reg.assign(pCnt,0);
 	obs_last_seen_reg.assign(pCnt, Time());
 	tel_insertion_window_reg.assign(pCnt, Time());
@@ -345,7 +345,7 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				m_u[ifIndex] = newU;
 			} else if (m_ccMode == 12){ // LINT
 				Time now = Simulator::Now();
-                uint32_t time = now.GetMicroSeconds();
+                uint32_t time = now.GetNanoSeconds();
                 
                 uint32_t amt_bytes;
                 amt_bytes = pres_byte_cnt_reg.at(ifIndex);
@@ -353,7 +353,7 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				pres_byte_cnt_reg.at(ifIndex) = amt_bytes;
 
                 uint32_t previousInsertion;
-				previousInsertion = previous_insertion_reg.at(ifIndex).GetMicroSeconds();
+				previousInsertion = previous_insertion_reg.at(ifIndex).GetNanoSeconds();
 
                 if (previousInsertion == 0) // Init previous insertion on first ts
                     {
@@ -370,7 +370,7 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
                                 ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
                                 previous_insertion_reg.at(ifIndex) = now;
                             }
-
+						// previous_insertion_reg.at(ifIndex) = now; // test
                         pres_byte_cnt_reg.at(ifIndex) = 0;
                     }
             } else if (m_ccMode == 11){ // DINT
