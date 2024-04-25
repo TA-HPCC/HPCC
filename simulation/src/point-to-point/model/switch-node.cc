@@ -57,7 +57,6 @@ SwitchNode::SwitchNode(){
 		m_lastPktSize[i] = m_lastPktTs[i] = 0;
 	for (uint32_t i = 0; i < pCnt; i++)
 		m_u[i] = 0;
-	max_t = 500000;
 	past_byte_cnt_reg.assign(pCnt,0);
 	obs_last_seen_reg.assign(pCnt, Time());
 	tel_insertion_window_reg.assign(pCnt, Time());
@@ -414,9 +413,6 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
                     int32_t diff_bytes = pres_amt_bytes - past_amt_bytes;
 					// std::cout << diff_bytes;
 					// std::cout << "\n";
-					// std::cout << "delta : " << dint_delta;
-					// std::cout << "\n";
-					// std::exit(0);
                     if (diff_bytes > dint_delta || diff_bytes < -1*dint_delta){
                         val_tel_insertion_window = tel_insertion_min_window;
                     } else {
@@ -427,10 +423,6 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
                     update_delta(ifIndex, pres_amt_bytes, dint_delta);
 					past_byte_cnt_reg.at(ifIndex) = pres_amt_bytes;
 					pres_byte_cnt_reg.at(ifIndex) = 0;
-					// std::cout << pres_byte_cnt_reg.at(ifIndex);
-					// std::cout << "\n";
-					// std::cout << past_byte_cnt_reg.at(ifIndex);
-					// std::cout << "\n";
 					// Update tel insertion window
 					tel_insertion_window_reg.at(ifIndex) = Time(val_tel_insertion_window);
 					obs_last_seen_reg.at(ifIndex) = now;
@@ -444,8 +436,6 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 					previousInsertion = now;
 					previous_insertion_reg.at(ifIndex) = now;
 				}
-				// std::cout << now.GetNanoSeconds() - previousInsertion.GetNanoSeconds();
-				// std::cout << "\n";
 				
 				if(now.GetNanoSeconds() - previousInsertion.GetNanoSeconds() >= telInsertionWindow.GetNanoSeconds()){
 					 // Insert telemetry

@@ -26,16 +26,16 @@ class SwitchNode : public Node{
 	uint64_t m_lastPktTs[pCnt]; // ns
 	double m_u[pCnt];
 	//for DINT var
-	static const uint32_t tel_insertion_min_window = 100000;
-	static const int64_t obs_window = 100000; // 1 Seg = 1000000 microseg
-	
+	static const uint32_t tel_insertion_min_window = 10000;
+	static const int64_t obs_window = 10000; // 1 Seg = 1000000 microseg
+	static const uint32_t max_t = 25000;
 
-	static const int32_t alpha_1 = 9;
-	static const int32_t alpha_2 = 3; //shift divisor
+	static const int32_t alpha_1 = 5;
+	static const int32_t alpha_2 = 2; //shift divisor
 
 
-	static const int32_t k = 16;
-	static const int32_t div_shift = 4;
+	static const int32_t k = 8;
+	static const int32_t div_shift = 3;
 
 	/***************************************************************/
 
@@ -70,7 +70,6 @@ protected:
 	uint32_t m_ccMode;
 	uint64_t m_maxRtt;
 	Time last_obs;
-	uint32_t max_t;
 	uint32_t m_ackHighPrio; // set high priority for ACK/NACK
 
 private:
