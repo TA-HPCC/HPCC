@@ -422,8 +422,8 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
                     } else {
                         val_tel_insertion_window = min(max_t, ((val_tel_insertion_window*alpha_1)>>alpha_2));
                     }
-					std::cout << pres_amt_bytes;
-					std::cout << "\n";
+					// std::cout << pres_amt_bytes;
+					// std::cout << "\n";
                     update_delta(ifIndex, pres_amt_bytes, dint_delta);
 					past_byte_cnt_reg.at(ifIndex) = pres_amt_bytes;
 					pres_byte_cnt_reg.at(ifIndex) = 0;
