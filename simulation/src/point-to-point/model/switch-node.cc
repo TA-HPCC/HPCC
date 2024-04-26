@@ -57,7 +57,6 @@ SwitchNode::SwitchNode(){
 		m_lastPktSize[i] = m_lastPktTs[i] = 0;
 	for (uint32_t i = 0; i < pCnt; i++)
 		m_u[i] = 0;
-	max_t = 50000;
 	past_byte_cnt_reg.assign(pCnt,0);
 	obs_last_seen_reg.assign(pCnt, Time());
 	tel_insertion_window_reg.assign(pCnt, Time());
@@ -105,41 +104,6 @@ uint32_t min(uint32_t v1,uint32_t v2){
     else return v2;
 }
 
-
-bool SwitchNode::ReportMetrics(uint32_t &flowId, uint32_t presAmtBytes) {    
-    bool report = false;
-
-    int32_t currentObs = presAmtBytes;
-
-    uint32_t pastDeviceObs = past_device_obs_reg.at(flowId);
-    uint32_t pastReportedObs = past_reported_obs_reg.at(flowId);
-
-    int32_t latestDeviceObs = (currentObs - pastDeviceObs) >> alpha;
-    latestDeviceObs = latestDeviceObs + pastDeviceObs;
-    if (pastDeviceObs == 0)
-    {
-        latestDeviceObs = currentObs;
-    }
-
-    int32_t deviation = latestDeviceObs - pastReportedObs;
-	// std::cout << "currentObs " << currentObs << " latestDeviceObs " << latestDeviceObs << " latestDeviceObs " << pastDeviceObs << " pastReportedObs " << pastReportedObs << " deviation " << deviation << std::endl;
-    if (deviation > (latestDeviceObs >> delta) || deviation < -1 * (latestDeviceObs >> delta))
-    {
-        report = true;
-
-        int32_t latestReportedObs = (currentObs - pastReportedObs) >> alpha;
-        latestReportedObs = latestReportedObs + pastReportedObs;
-        if (pastReportedObs == 0)
-        {
-            latestReportedObs = currentObs;
-        }
-        past_reported_obs_reg.at(flowId) = latestReportedObs;
-    }
-
-    past_device_obs_reg.at(flowId) = latestDeviceObs;
-
-    return report;
-}
 
 int SwitchNode::GetOutDev(Ptr<const Packet> p, CustomHeader &ch){
 	// look up entries
@@ -380,7 +344,7 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				m_u[ifIndex] = newU;
 			} else if (m_ccMode == 12){ // LINT
 				Time now = Simulator::Now();
-                uint32_t time = now.GetMicroSeconds();
+                uint32_t time = now.GetNanoSeconds();
                 
                 uint32_t amt_bytes;
                 amt_bytes = pres_byte_cnt_reg.at(ifIndex);
@@ -388,7 +352,7 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				pres_byte_cnt_reg.at(ifIndex) = amt_bytes;
 
                 uint32_t previousInsertion;
-				previousInsertion = previous_insertion_reg.at(ifIndex).GetMicroSeconds();
+				previousInsertion = previous_insertion_reg.at(ifIndex).GetNanoSeconds();
 
                 if (previousInsertion == 0) // Init previous insertion on first ts
                     {
@@ -398,13 +362,14 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
                 if (time - previousInsertion >= obs_window)
                     {
                         bool report = ReportMetrics(ifIndex, amt_bytes);
-						// std::cout << ifIndex << " " << report << " " << amt_bytes << " " << previousInsertion << std::endl;
+
                         if (report)
                             {
+								// std::cout << report << " "; // for testing
                                 ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
-                                // previous_insertion_reg.at(ifIndex) = now;
+                                previous_insertion_reg.at(ifIndex) = now;
                             }
-						previous_insertion_reg.at(ifIndex) = now; // test
+						// previous_insertion_reg.at(ifIndex) = now; // test
                         pres_byte_cnt_reg.at(ifIndex) = 0;
                     }
             } else if (m_ccMode == 11){ // DINT
@@ -448,23 +413,16 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
                     int32_t diff_bytes = pres_amt_bytes - past_amt_bytes;
 					// std::cout << diff_bytes;
 					// std::cout << "\n";
-					// std::cout << "delta : " << dint_delta;
-					// std::cout << "\n";
-					// std::exit(0);
                     if (diff_bytes > dint_delta || diff_bytes < -1*dint_delta){
                         val_tel_insertion_window = tel_insertion_min_window;
                     } else {
                         val_tel_insertion_window = min(max_t, ((val_tel_insertion_window*alpha_1)>>alpha_2));
                     }
-					// std::cout << val_tel_insertion_window;
+					// std::cout << pres_amt_bytes;
 					// std::cout << "\n";
                     update_delta(ifIndex, pres_amt_bytes, dint_delta);
 					past_byte_cnt_reg.at(ifIndex) = pres_amt_bytes;
 					pres_byte_cnt_reg.at(ifIndex) = 0;
-					// std::cout << pres_byte_cnt_reg.at(ifIndex);
-					// std::cout << "\n";
-					// std::cout << past_byte_cnt_reg.at(ifIndex);
-					// std::cout << "\n";
 					// Update tel insertion window
 					tel_insertion_window_reg.at(ifIndex) = Time(val_tel_insertion_window);
 					obs_last_seen_reg.at(ifIndex) = now;
@@ -477,12 +435,6 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				if(previousInsertion.IsZero()){
 					previousInsertion = now;
 					previous_insertion_reg.at(ifIndex) = now;
-				}
-				// std::cout << now.GetNanoSeconds() - previousInsertion.GetNanoSeconds();
-				// std::cout << "\n";
-				if (telInsertionWindow.GetNanoSeconds() > 15000)
-				{
-					std::exit(0);
 				}
 				
 				if(now.GetNanoSeconds() - previousInsertion.GetNanoSeconds() >= telInsertionWindow.GetNanoSeconds()){
@@ -519,5 +471,41 @@ int SwitchNode::log2apprx(int x, int b, int m, int l){
 	}
 	return int(log2(x) * (1<<logres_shift(b, l)));
 }
+
+bool SwitchNode::ReportMetrics(uint32_t &flowId, uint32_t presAmtBytes) {    
+    bool report = false;
+
+    int32_t currentObs = presAmtBytes;
+
+    uint32_t pastDeviceObs = past_device_obs_reg.at(flowId);
+    uint32_t pastReportedObs = past_reported_obs_reg.at(flowId);
+
+    int32_t latestDeviceObs = (currentObs - pastDeviceObs) >> alpha;
+    latestDeviceObs = latestDeviceObs + pastDeviceObs;
+    if (pastDeviceObs == 0)
+    {
+        latestDeviceObs = currentObs;
+    }
+
+    int32_t deviation = latestDeviceObs - pastReportedObs;
+    if (deviation > (latestDeviceObs >> delta) || deviation < -1 * (latestDeviceObs >> delta))
+    {
+        report = true;
+
+        int32_t latestReportedObs = (currentObs - pastReportedObs) >> alpha;
+        latestReportedObs = latestReportedObs + pastReportedObs;
+        if (pastReportedObs == 0)
+        {
+            latestReportedObs = currentObs;
+        }
+        past_reported_obs_reg.at(flowId) = latestReportedObs;
+    }
+
+    past_device_obs_reg.at(flowId) = latestDeviceObs;
+
+    return report;
+}
+
+
 
 }
