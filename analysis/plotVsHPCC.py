@@ -32,23 +32,37 @@ fb_file = 'fct_fb50_pint_mi0_log1.05_vs_hpcc.dat'
 PINT_50_wb = [float(line.split()[2]) for line in open(wb_file).readlines()[0:]]     # web search
 PINT_95_wb = [float(line.split()[3]) for line in open(wb_file).readlines()[0:]]     # web search
 PINT_99_wb = [float(line.split()[4]) for line in open(wb_file).readlines()[0:]]     # web search
-HPCC_50_wb = [float(line.split()[-3]) for line in open(wb_file).readlines()[0:]]    # web search
-HPCC_95_wb = [float(line.split()[-2]) for line in open(wb_file).readlines()[0:]]    # web search
-HPCC_99_wb = [float(line.split()[-1]) for line in open(wb_file).readlines()[0:]]    # web search
+HPCC_50_wb = [float(line.split()[5]) for line in open(wb_file).readlines()[0:]]    # web search
+HPCC_95_wb = [float(line.split()[6]) for line in open(wb_file).readlines()[0:]]    # web search
+HPCC_99_wb = [float(line.split()[7]) for line in open(wb_file).readlines()[0:]]    # web search
+LINT_50_wb = [float(line.split()[8]) for line in open(wb_file).readlines()[0:]]    # web search
+LINT_95_wb = [float(line.split()[9]) for line in open(wb_file).readlines()[0:]]    # web search
+LINT_99_wb = [float(line.split()[10]) for line in open(wb_file).readlines()[0:]]    # web search
+DINT_50_wb = [float(line.split()[11]) for line in open(wb_file).readlines()[0:]]    # web search
+DINT_95_wb = [float(line.split()[12]) for line in open(wb_file).readlines()[0:]]    # web search
+DINT_99_wb = [float(line.split()[13]) for line in open(wb_file).readlines()[0:]]    # web search
 
 wb_x_axis = [int(line.split()[1]) for line in open(wb_file).readlines()[0:]] # wb flow sizes
 
 PINT_50_fb = [float(line.split()[2]) for line in open(fb_file).readlines()[0:]]     # facebook
 PINT_95_fb = [float(line.split()[3]) for line in open(fb_file).readlines()[0:]]     # facebook
 PINT_99_fb = [float(line.split()[4]) for line in open(fb_file).readlines()[0:]]     # facebook
-HPCC_50_fb = [float(line.split()[-3]) for line in open(fb_file).readlines()[0:]]    # facebook
-HPCC_95_fb = [float(line.split()[-2]) for line in open(fb_file).readlines()[0:]]    # facebook
-HPCC_99_fb = [float(line.split()[-1]) for line in open(fb_file).readlines()[0:]]    # facebook
+HPCC_50_fb = [float(line.split()[5]) for line in open(fb_file).readlines()[0:]]    # facebook
+HPCC_95_fb = [float(line.split()[6]) for line in open(fb_file).readlines()[0:]]    # facebook
+HPCC_99_fb = [float(line.split()[7]) for line in open(fb_file).readlines()[0:]]    # facebook
+LINT_50_fb = [float(line.split()[8]) for line in open(fb_file).readlines()[0:]]    # facebook
+LINT_95_fb = [float(line.split()[9]) for line in open(fb_file).readlines()[0:]]    # facebook
+LINT_99_fb = [float(line.split()[10]) for line in open(fb_file).readlines()[0:]]    # facebook
+DINT_50_fb = [float(line.split()[11]) for line in open(fb_file).readlines()[0:]]    # facebook
+DINT_95_fb = [float(line.split()[12]) for line in open(fb_file).readlines()[0:]]    # facebook
+DINT_99_fb = [float(line.split()[13]) for line in open(fb_file).readlines()[0:]]    # facebook
 
 fb_x_axis = [int(line.split()[1]) for line in open(fb_file).readlines()[0:]] # fb flow sizes
 
 plt.plot(np.linspace(0, 10, num=20),HPCC_95_wb, color='red', linestyle='-', label='HPCC(INT)',linewidth=4.0)
 plt.plot(np.linspace(0, 10, num=20),PINT_95_wb, color='blue', linestyle='--', label='HPCC(PINT)',linewidth=4.0)
+plt.plot(np.linspace(0, 10, num=20),LINT_95_wb, color='green', linestyle='-.', label='HPCC(LINT)',linewidth=4.0)
+plt.plot(np.linspace(0, 10, num=20),DINT_95_wb, color='purple', linestyle=':', label='HPCC(DINT)',linewidth=4.0)
 plt.ylim([1,11])
 ax.set_xticks(range(1,11))
 ax.set_xticklabels([str(x) if x < 1000 else str(int(x/1000. + .5)) + 'K' if x < 1000.**2 else str(int(x/1000.**2 + .5)) + 'M' for x in wb_x_axis[1::2]])
@@ -72,6 +86,8 @@ plt.gcf().subplots_adjust(bottom=0.15)
 plt.ylim([1,11])
 plt.plot(np.linspace(0, 10, num=20),HPCC_95_fb, color='red', linestyle='-', label='HPCC(INT)',linewidth=4.0)
 plt.plot(np.linspace(0, 10, num=20),PINT_95_fb, color='blue', linestyle='--', label='HPCC(PINT)',linewidth=4.0)
+plt.plot(np.linspace(0, 10, num=20),LINT_95_fb, color='green', linestyle='-.', label='HPCC(LINT)',linewidth=4.0)
+plt.plot(np.linspace(0, 10, num=20),DINT_95_fb, color='purple', linestyle=':', label='HPCC(DINT)',linewidth=4.0)
 
 #plt.xticks(np.arange(len(wb_x_axis)), wb_x_axis)
 #ax.set_xticks(np.linspace(wb_x_axis[0], wb_x_axis[-1], num=20))
