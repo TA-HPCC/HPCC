@@ -240,7 +240,7 @@ void RdmaHw::AddQueuePair(uint64_t size, uint16_t pg, Ipv4Address sip, Ipv4Addre
 	qp->m_max_rate = m_bps;
 	if (m_cc_mode == 1){
 		qp->mlx.m_targetRate = m_bps;
-	}else if (m_cc_mode == 3){
+	}else if (m_cc_mode == 3 || m_cc_mode == 11 || m_cc_mode == 12){
 		qp->hp.m_curRate = m_bps;
 		if (m_multipleRate){
 			for (uint32_t i = 0; i < IntHeader::maxHop; i++)
@@ -360,7 +360,7 @@ int RdmaHw::ReceiveCnp(Ptr<Packet> p, CustomHeader &ch){
 		qp->m_rate = dev->GetDataRate();
 		if (m_cc_mode == 1){
 			qp->mlx.m_targetRate = dev->GetDataRate();
-		}else if (m_cc_mode == 3){
+		}else if (m_cc_mode == 3|| m_cc_mode == 11 || m_cc_mode == 12){
 			qp->hp.m_curRate = dev->GetDataRate();
 			if (m_multipleRate){
 				for (uint32_t i = 0; i < IntHeader::maxHop; i++)
@@ -412,7 +412,7 @@ int RdmaHw::ReceiveAck(Ptr<Packet> p, CustomHeader &ch){
 		} 
 	}
 
-	if (m_cc_mode == 3){
+	if (m_cc_mode == 3 || m_cc_mode == 11 || m_cc_mode == 12){
 		HandleAckHp(qp, p, ch);
 	}else if (m_cc_mode == 7){
 		HandleAckTimely(qp, p, ch);

@@ -1,0 +1,27 @@
+{
+	"time":105,
+	"devices":[
+		{
+			"name":"s4", 
+			"cmds":["cd ../testing/results/traffic_data/", "touch static_real_output.pcapng", "chmod o=rw static_real_output.pcapng", 
+					"tshark -f \"ip and udp and portrange 50000-60000 and not icmp\" -i s4-eth2 -i s4-eth3 -i s4-eth4 -w static_real_output.pcapng -a duration:105 &"]
+		},
+		{
+			"name":"h5",
+			"cmds":["cd  ../testing/node_communication/", "./receive.py -s static -e elephant_mice -t 105 &"]
+		},
+		{
+			"name":"h1",
+			"cmds":["cd  ../testing/experiment_traffic_generator/elephant_mice", "tcpreplay -i eth0 -K h1_tcpreplay_elephant_mice.pcapng &"]
+		},
+		{
+			"name":"h2",
+			"cmds":["cd  ../testing/experiment_traffic_generator/elephant_mice", "tcpreplay -i eth0 -K h2_tcpreplay_elephant_mice.pcapng &"]
+		},
+		{
+			"name":"h3",
+			"cmds":["cd  ../testing/experiment_traffic_generator/elephant_mice", "tcpreplay -i eth0 -K h3_tcpreplay_elephant_mice.pcapng &"]
+		}
+	]
+
+}
