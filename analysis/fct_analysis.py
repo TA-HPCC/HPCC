@@ -23,8 +23,11 @@ if __name__=="__main__":
         CCs = [
                 'hpccPint95ai50log1.050p1.000',
                 'hp95ai50',
-                'lint',
-                'dint',
+		'lint95ai50',
+		'dint95ai50',
+		#'lint95ai50',
+               # 'lint',
+               # 'dint',
 
         ]
 
