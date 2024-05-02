@@ -94,12 +94,12 @@ void SwitchNode::update_delta(uint32_t &ifIndex, uint32_t comparator, int32_t &d
     count_reg.at(ifIndex) = ct;
 }
 
-uint32_t max(uint32_t v1,uint32_t v2){
+uint32_t max(uint64_t v1,uint64_t v2){
     if(v1 > v2) return v1;
     else return v2;
 }
 
-uint32_t min(uint32_t v1,uint32_t v2){
+uint32_t min(uint64_t v1,uint64_t v2){
     if(v1 < v2) return v1;
     else return v2;
 }
