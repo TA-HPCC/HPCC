@@ -373,10 +373,10 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 					}
 					pres_byte_cnt_reg.at(ifIndex) = 0;
 				}
-				else
-				{
-					ih->PushHop(Simulator::Now().GetTimeStep(), previous_bytes_reg.at(ifIndex), dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
-				}
+				// else
+				// {
+				//	 ih->PushHop(Simulator::Now().GetTimeStep(), previous_bytes_reg.at(ifIndex), dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
+				// }
             } else if (m_ccMode == 11){ // DINT
                 // Get current simulator time
                 Time now = Simulator::Now();
