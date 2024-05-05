@@ -57,18 +57,19 @@ SwitchNode::SwitchNode(){
 		m_lastPktSize[i] = m_lastPktTs[i] = 0;
 	for (uint32_t i = 0; i < pCnt; i++)
 		m_u[i] = 0;
-	past_byte_cnt_reg.assign(pCnt,0);
+	past_byte_cnt_reg.assign(pCnt, 0);
 	obs_last_seen_reg.assign(pCnt, Time());
 	tel_insertion_window_reg.assign(pCnt, Time());
 	delta_reg.assign(pCnt, 0);
 	n_last_values_reg.assign(pCnt, 0);
 	count_reg.assign(pCnt, 0);
-	pres_byte_cnt_reg.assign(pCnt,0);
-	telemetry_byte_cnt_reg.assign(pCnt,0);
-	packets_cnt_reg.assign(pCnt,0);
+	pres_byte_cnt_reg.assign(pCnt, 0);
+	telemetry_byte_cnt_reg.assign(pCnt, 0);
+	packets_cnt_reg.assign(pCnt, 0);
 	previous_insertion_reg.assign(pCnt, Time());
 	past_device_obs_reg.assign(pCnt, 0);
 	past_reported_obs_reg.assign(pCnt, 0);
+	previous_bytes_reg.assign(pCnt, 0);
 }
 
 // Updates the dynamic threshold according to the SIMPLE MOVING AVERAGE function of the last k measured throughputs
@@ -368,13 +369,14 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 						// std::cout << report << " "; // for testing
 						ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
 						previous_insertion_reg.at(ifIndex) = now;
+						previous_bytes_reg.at(ifIndex) = m_txBytes[ifIndex];
 					}
 					pres_byte_cnt_reg.at(ifIndex) = 0;
 				}
-				// else
-				// {
-				// 	ih->PushHop(Simulator::Now().GetTimeStep(), 0, dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
-				// }
+				else
+				{
+					ih->PushHop(Simulator::Now().GetTimeStep(), previous_bytes_reg.at(ifIndex), dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
+				}
             } else if (m_ccMode == 11){ // DINT
                 // Get current simulator time
                 Time now = Simulator::Now();
