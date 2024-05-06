@@ -362,6 +362,9 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 					ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
 					previous_bytes_reg.at(ifIndex) = m_txBytes[ifIndex];
 				}
+				if (previous_bytes_reg.at(ifIndex) == 0){
+					previous_bytes_reg.at(ifIndex) = m_txBytes[ifIndex];
+				}
                 if (time - previousInsertion >= obs_window)
 				{
 					bool report = ReportMetrics(ifIndex, amt_bytes);
