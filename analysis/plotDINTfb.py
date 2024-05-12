@@ -25,31 +25,31 @@ fig, ax = plt.subplots(figsize=(10,5))
 plt.grid()
 plt.gcf().subplots_adjust(bottom=0.15)
 
-wb_file = 'fct_wb50_pint_mi0_log1.05_vs_hpcc_vs_lint_vs_dint.dat'
+fb_file = 'fct_fb50_all_dint.dat'
 
 
-PINT_50_wb = [float(line.split()[2]) for line in open(wb_file).readlines()[0:]]     # web search
-PINT_95_wb = [float(line.split()[3]) for line in open(wb_file).readlines()[0:]]     # web search
-PINT_99_wb = [float(line.split()[4]) for line in open(wb_file).readlines()[0:]]     # web search
-HPCC_50_wb = [float(line.split()[5]) for line in open(wb_file).readlines()[0:]]    # web search
-HPCC_95_wb = [float(line.split()[6]) for line in open(wb_file).readlines()[0:]]    # web search
-HPCC_99_wb = [float(line.split()[7]) for line in open(wb_file).readlines()[0:]]    # web search
-LINT_50_wb = [float(line.split()[8]) for line in open(wb_file).readlines()[0:]]    # web sear>
-LINT_95_wb = [float(line.split()[9]) for line in open(wb_file).readlines()[0:]]    # web sear>
-LINT_99_wb = [float(line.split()[10]) for line in open(wb_file).readlines()[0:]]    # web sear>
-DINT_50_wb = [float(line.split()[11]) for line in open(wb_file).readlines()[0:]]    # web sear>
-DINT_95_wb = [float(line.split()[12]) for line in open(wb_file).readlines()[0:]]    # web sear>
-DINT_99_wb = [float(line.split()[13]) for line in open(wb_file).readlines()[0:]]    # web sear>
-wb_x_axis = [int(line.split()[1]) for line in open(wb_file).readlines()[0:]] # wb flow sizes
+DINT_alfa15_50_fb = [float(line.split()[2]) for line in open(fb_file).readlines()[0:]]     # web search
+DINT_alfa15_95_fb = [float(line.split()[3]) for line in open(fb_file).readlines()[0:]]     # web search
+DINT_alfa15_99_fb = [float(line.split()[4]) for line in open(fb_file).readlines()[0:]]     # web search
+DINT_alfa125_50_fb = [float(line.split()[5]) for line in open(fb_file).readlines()[0:]]    # web search
+DINT_alfa125_95_fb = [float(line.split()[6]) for line in open(fb_file).readlines()[0:]]    # web search
+DINT_alfa125_99_fb = [float(line.split()[7]) for line in open(fb_file).readlines()[0:]]    # web search
+DINT_alfa1125_50_fb = [float(line.split()[8]) for line in open(fb_file).readlines()[0:]]    # web sear>
+DINT_alfa1125_95_fb = [float(line.split()[9]) for line in open(fb_file).readlines()[0:]]    # web sear>
+DINT_alfa1125_99_fb = [float(line.split()[10]) for line in open(fb_file).readlines()[0:]]    # web sear>
+DINT_alfa10675_50_fb = [float(line.split()[11]) for line in open(fb_file).readlines()[0:]]    # web sear>
+DINT_alfa10675_95_fb = [float(line.split()[12]) for line in open(fb_file).readlines()[0:]]    # web sear>
+DINT_alfa10675_99_fb = [float(line.split()[13]) for line in open(fb_file).readlines()[0:]]    # web sear>
+fb_x_axis = [int(line.split()[1]) for line in open(fb_file).readlines()[0:]] # fb flow sizes
 
 
-plt.plot(np.linspace(0, 10, num=20),HPCC_95_wb, color='red', linestyle='-', label='HPCC(INT)',linewidth=4.0)
-plt.plot(np.linspace(0, 10, num=20),PINT_95_wb, color='blue', linestyle='--', label='HPCC(PINT)',linewidth=4.0)
-plt.plot(np.linspace(0, 10, num=20),LINT_95_wb, color='green', linestyle='-.', label='HPCC(LINT)',linewidth=4.0)
-plt.plot(np.linspace(0, 10, num=20),DINT_95_wb, color='purple', linestyle=':', label='HPCC(DINT)',linewidth=4.0)
+plt.plot(np.linspace(0, 10, num=20),DINT_alfa15_95_fb, color='red', linestyle='-', label='DINT k = 16',linewidth=4.0)
+plt.plot(np.linspace(0, 10, num=20),DINT_alfa125_95_fb, color='blue', linestyle='--', label='DINT k = 8 (original)',linewidth=4.0)
+plt.plot(np.linspace(0, 10, num=20),DINT_alfa1125_95_fb, color='green', linestyle='-.', label='DINT k = 4',linewidth=4.0)
+plt.plot(np.linspace(0, 10, num=20),DINT_alfa10675_95_fb, color='purple', linestyle=':', label='DINT k = 1',linewidth=4.0)
 plt.ylim([1,11])
 ax.set_xticks(range(1,11))
-ax.set_xticklabels([str(x) if x < 1000 else str(int(x/1000. + .5)) + 'K' if x < 1000.**2 else str(int(x/1000.**2 + .5)) + 'M' for x in wb_x_axis[1::2]])
+ax.set_xticklabels([str(x) if x < 1000 else str(int(x/1000. + .5)) + 'K' if x < 1000.**2 else str(int(x/1000.**2 + .5)) + 'M' for x in fb_x_axis[1::2]])
 
 
 plt.legend(bbox_to_anchor=(0.5, 1.2),loc='upper center',ncol=2)
@@ -59,8 +59,8 @@ plt.ylabel(r'Slowdown', fontsize=28)
 plt.xlabel('Flow Size [Bytes]', fontsize=28)
 #plt.xlim([0, maxPkts])
 plt.tight_layout()
-plt.savefig('web_search_95p.pdf')
-plt.savefig('web_search_95p.png')
+plt.savefig('facebook_fat_dint.pdf')
+plt.savefig('facebook_fat_dint.png')
 exit()
 
 HPCC = 0

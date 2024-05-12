@@ -26,43 +26,44 @@ class SwitchNode : public Node{
 	uint64_t m_lastPktTs[pCnt]; // ns
 	double m_u[pCnt];
 	//for DINT var
-	static const uint32_t tel_insertion_min_window = 1;
-	static const int64_t obs_window = 1; // 1 Seg = 1000000 microseg
-	static const uint32_t max_t = 100;
+	static const uint64_t tel_insertion_min_window = 1000;
+	static const int64_t obs_window = 1000; // 1 Seg = 1000000 microseg
+	static const uint64_t max_t = 10000;
 
-	static const int32_t alpha_1 = 5;
-	static const int32_t alpha_2 = 2; //shift divisor
+	static const int64_t alpha_1 = 5;
+	static const int8_t alpha_2 = 2; //shift divisor
 
 
 	static const int32_t k = 8;
-	static const int32_t div_shift = 3;
+	static const int8_t div_shift = 3;
 
 	/***************************************************************/
 
 	static const int64_t div_10 = 0x1999999A; /// Used to divide a number by 10
 	// static const int64_t div_100 = 0x28F5C29;
 	static const int32_t base_delta = 300;
-	std::vector<uint32_t> past_byte_cnt_reg;
-	std::vector<Time> obs_last_seen_reg;
-	std::vector<Time> tel_insertion_window_reg;
-	std::vector<uint32_t> delta_reg;
-	std::vector<uint32_t> n_last_values_reg;
-	std::vector<uint32_t> count_reg;
+	std::array<uint32_t,pCnt> past_byte_cnt_reg;
+	std::array<Time,pCnt> obs_last_seen_reg;
+	std::array<Time,pCnt> tel_insertion_window_reg;
+	std::array<uint32_t,pCnt> delta_reg;
+	std::array<uint32_t,pCnt> n_last_values_reg;
+	std::array<uint32_t,pCnt> count_reg;
 	
 	//end
 
 	//LINT
+	static const int64_t obs_window_lint = 1000;
 	static const uint8_t alpha = 1; // Equals to 2^-1
 	static const uint8_t delta = 6; // Equals to 2^-1
 
-	std::vector<uint32_t> pres_byte_cnt_reg;
-	std::vector<uint32_t> telemetry_byte_cnt_reg;
-	std::vector<uint32_t> packets_cnt_reg;
+	std::array<uint32_t,pCnt> pres_byte_cnt_reg;
+	std::array<uint32_t,pCnt> packets_cnt_reg;
 
-	std::vector<Time> previous_insertion_reg;
+	std::array<Time,pCnt> previous_insertion_reg;
+	std::array<uint64_t,pCnt> previous_bytes_reg;
 
-	std::vector<uint32_t> past_device_obs_reg;
-	std::vector<uint32_t> past_reported_obs_reg;
+	std::array<uint32_t,pCnt> past_device_obs_reg;
+	std::array<uint32_t,pCnt> past_reported_obs_reg;
 	//end
 
 protected:
@@ -79,7 +80,9 @@ private:
 	void CheckAndSendPfc(uint32_t inDev, uint32_t qIndex);
 	void CheckAndSendResume(uint32_t inDev, uint32_t qIndex);
 	//For DINT
-	void update_delta(uint32_t &flow_id, uint32_t comparator, int32_t &delta);
+	void update_delta(uint32_t &flow_id, uint32_t comparator, uint32_t &delta);
+	void update_telemetry_insertion_time(uint32_t &ifIndex, uint32_t pres_amt_bytes, uint32_t& delta);
+	uint64_t dint_min(uint64_t v1,uint64_t v2);
 	// LINT
 	bool ReportMetrics(uint32_t &flowId, uint32_t presAmtBytes);
 public:
