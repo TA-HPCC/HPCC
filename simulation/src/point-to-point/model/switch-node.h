@@ -52,6 +52,7 @@ class SwitchNode : public Node{
 	//end
 
 	//LINT
+	static const int64_t obs_window_lint = 1000;
 	static const uint8_t alpha = 1; // Equals to 2^-1
 	static const uint8_t delta = 6; // Equals to 2^-1
 
@@ -60,6 +61,7 @@ class SwitchNode : public Node{
 	std::vector<uint32_t> packets_cnt_reg;
 
 	std::vector<Time> previous_insertion_reg;
+	std::vector<uint64_t> previous_bytes_reg;
 
 	std::vector<uint32_t> past_device_obs_reg;
 	std::vector<uint32_t> past_reported_obs_reg;
