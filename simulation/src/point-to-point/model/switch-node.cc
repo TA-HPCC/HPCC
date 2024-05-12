@@ -57,18 +57,19 @@ SwitchNode::SwitchNode(){
 		m_lastPktSize[i] = m_lastPktTs[i] = 0;
 	for (uint32_t i = 0; i < pCnt; i++)
 		m_u[i] = 0;
-	past_byte_cnt_reg.assign(pCnt,0);
+	past_byte_cnt_reg.assign(pCnt, 0);
 	obs_last_seen_reg.assign(pCnt, Time());
 	tel_insertion_window_reg.assign(pCnt, Time());
 	delta_reg.assign(pCnt, 0);
 	n_last_values_reg.assign(pCnt, 0);
 	count_reg.assign(pCnt, 0);
-	pres_byte_cnt_reg.assign(pCnt,0);
-	telemetry_byte_cnt_reg.assign(pCnt,0);
-	packets_cnt_reg.assign(pCnt,0);
+	pres_byte_cnt_reg.assign(pCnt, 0);
+	telemetry_byte_cnt_reg.assign(pCnt, 0);
+	packets_cnt_reg.assign(pCnt, 0);
 	previous_insertion_reg.assign(pCnt, Time());
 	past_device_obs_reg.assign(pCnt, 0);
 	past_reported_obs_reg.assign(pCnt, 0);
+	previous_bytes_reg.assign(pCnt, 0);
 }
 
 // Updates the dynamic threshold according to the SIMPLE MOVING AVERAGE function of the last k measured throughputs
@@ -94,12 +95,12 @@ void SwitchNode::update_delta(uint32_t &ifIndex, uint32_t comparator, int32_t &d
     count_reg.at(ifIndex) = ct;
 }
 
-uint32_t max(uint32_t v1,uint32_t v2){
+uint32_t max(uint64_t v1,uint64_t v2){
     if(v1 > v2) return v1;
     else return v2;
 }
 
-uint32_t min(uint32_t v1,uint32_t v2){
+uint32_t min(uint64_t v1,uint64_t v2){
     if(v1 < v2) return v1;
     else return v2;
 }
@@ -354,24 +355,28 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
                 uint32_t previousInsertion;
 				previousInsertion = previous_insertion_reg.at(ifIndex).GetNanoSeconds();
 
-                if (previousInsertion == 0) // Init previous insertion on first ts
-                    {
-                        previousInsertion = time;
-                        previous_insertion_reg.at(ifIndex) = now;
-                    }
-                if (time - previousInsertion >= obs_window)
-                    {
-                        bool report = ReportMetrics(ifIndex, amt_bytes);
+                if (previousInsertion == 0) // Init previous insertion on first ts 
+				{
+					previousInsertion = time;
+					previous_insertion_reg.at(ifIndex) = now;
+					ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
+					// previous_bytes_reg.at(ifIndex) = m_txBytes[ifIndex];
+				}
+                if (time - previousInsertion >= obs_window_lint)
+				{
+					bool report = ReportMetrics(ifIndex, amt_bytes);
 
-                        if (report)
-                            {
-								// std::cout << report << " "; // for testing
-                                ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
-                                previous_insertion_reg.at(ifIndex) = now;
-                            }
-						// previous_insertion_reg.at(ifIndex) = now; // test
-                        pres_byte_cnt_reg.at(ifIndex) = 0;
-                    }
+					if (report) {
+						ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
+						previous_insertion_reg.at(ifIndex) = now;
+						// previous_bytes_reg.at(ifIndex) = m_txBytes[ifIndex];
+					}
+					pres_byte_cnt_reg.at(ifIndex) = 0;
+				}
+				// else
+				// {
+				// 	 ih->PushHop(Simulator::Now().GetTimeStep(), previous_bytes_reg.at(ifIndex), dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
+				// }
             } else if (m_ccMode == 11){ // DINT
                 // Get current simulator time
                 Time now = Simulator::Now();
@@ -470,36 +475,36 @@ int SwitchNode::log2apprx(int x, int b, int m, int l){
 	return int(log2(x) * (1<<logres_shift(b, l)));
 }
 
-bool SwitchNode::ReportMetrics(uint32_t &flowId, uint32_t presAmtBytes) {    
+bool SwitchNode::ReportMetrics(uint32_t &portId, uint32_t presAmtBytes) {    
     bool report = false;
 
     int32_t currentObs = presAmtBytes;
 
-    uint32_t pastDeviceObs = past_device_obs_reg.at(flowId);
-    uint32_t pastReportedObs = past_reported_obs_reg.at(flowId);
+    uint32_t pastDeviceObs = past_device_obs_reg.at(portId);
+    uint32_t pastReportedObs = past_reported_obs_reg.at(portId);
 
-    int32_t latestDeviceObs = (currentObs - pastDeviceObs) >> alpha;
-    latestDeviceObs = latestDeviceObs + pastDeviceObs;
+    int32_t latestDeviceObs = (currentObs - static_cast<int32_t>(pastDeviceObs)) >> alpha;
+    latestDeviceObs = latestDeviceObs + static_cast<int32_t>(pastDeviceObs);
     if (pastDeviceObs == 0)
     {
         latestDeviceObs = currentObs;
     }
 
-    int32_t deviation = latestDeviceObs - pastReportedObs;
+    int32_t deviation = latestDeviceObs - static_cast<int32_t>(pastReportedObs);
     if (deviation > (latestDeviceObs >> delta) || deviation < -1 * (latestDeviceObs >> delta))
     {
         report = true;
 
-        int32_t latestReportedObs = (currentObs - pastReportedObs) >> alpha;
-        latestReportedObs = latestReportedObs + pastReportedObs;
+        int32_t latestReportedObs = (currentObs - static_cast<int32_t>(pastReportedObs)) >> alpha;
+        latestReportedObs = latestReportedObs + static_cast<int32_t>(pastReportedObs);
         if (pastReportedObs == 0)
         {
             latestReportedObs = currentObs;
         }
-        past_reported_obs_reg.at(flowId) = latestReportedObs;
+        past_reported_obs_reg.at(portId) = latestReportedObs;
     }
 
-    past_device_obs_reg.at(flowId) = latestDeviceObs;
+    past_device_obs_reg.at(portId) = latestDeviceObs;
 
     return report;
 }

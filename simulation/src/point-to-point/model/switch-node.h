@@ -26,15 +26,15 @@ class SwitchNode : public Node{
 	uint64_t m_lastPktTs[pCnt]; // ns
 	double m_u[pCnt];
 	//for DINT var
-	static const uint32_t tel_insertion_min_window = 100;
-	static const int64_t obs_window = 100; // 1 Seg = 1000000 microseg
-	static const uint32_t max_t = 500;
+	static const uint64_t tel_insertion_min_window = 1000000000;
+	static const int64_t obs_window = 100000000; // 1 Seg = 1000000 microseg
+	static const uint64_t max_t = 5000000000;
 
 	static const int32_t alpha_1 = 5;
 	static const int32_t alpha_2 = 2; //shift divisor
 
 
-	static const int32_t k = 16;
+	static const int32_t k = 8;
 	static const int32_t div_shift = 3;
 
 	/***************************************************************/
@@ -52,6 +52,7 @@ class SwitchNode : public Node{
 	//end
 
 	//LINT
+	static const int64_t obs_window_lint = 1000;
 	static const uint8_t alpha = 1; // Equals to 2^-1
 	static const uint8_t delta = 6; // Equals to 2^-1
 
@@ -60,6 +61,7 @@ class SwitchNode : public Node{
 	std::vector<uint32_t> packets_cnt_reg;
 
 	std::vector<Time> previous_insertion_reg;
+	std::vector<uint64_t> previous_bytes_reg;
 
 	std::vector<uint32_t> past_device_obs_reg;
 	std::vector<uint32_t> past_reported_obs_reg;
