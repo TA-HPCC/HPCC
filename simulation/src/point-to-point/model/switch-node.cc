@@ -57,32 +57,29 @@ SwitchNode::SwitchNode(){
 		m_lastPktSize[i] = m_lastPktTs[i] = 0;
 	for (uint32_t i = 0; i < pCnt; i++)
 		m_u[i] = 0;
-	past_byte_cnt_reg.assign(pCnt, 0);
-	obs_last_seen_reg.assign(pCnt, Time());
-	tel_insertion_window_reg.assign(pCnt, Time());
-	delta_reg.assign(pCnt, 0);
-	n_last_values_reg.assign(pCnt, 0);
-	count_reg.assign(pCnt, 0);
-	pres_byte_cnt_reg.assign(pCnt, 0);
-	telemetry_byte_cnt_reg.assign(pCnt, 0);
-	packets_cnt_reg.assign(pCnt, 0);
-	previous_insertion_reg.assign(pCnt, Time());
-	past_device_obs_reg.assign(pCnt, 0);
-	past_reported_obs_reg.assign(pCnt, 0);
-	previous_bytes_reg.assign(pCnt, 0);
+	past_byte_cnt_reg.fill(0);
+	obs_last_seen_reg.fill(Time());
+	tel_insertion_window_reg.fill(Time());
+	delta_reg.fill(0);
+	n_last_values_reg.fill(0);
+	count_reg.fill(0);
+	pres_byte_cnt_reg.fill(0);
+	packets_cnt_reg.fill(0);
+	previous_insertion_reg.fill(Time());
+	past_device_obs_reg.fill(0);
+	past_reported_obs_reg.fill(0);
+	previous_bytes_reg.fill(0);
 }
 
 // Updates the dynamic threshold according to the SIMPLE MOVING AVERAGE function of the last k measured throughputs
-void SwitchNode::update_delta(uint32_t &ifIndex, uint32_t comparator, int32_t &delta) {
+void SwitchNode::update_delta(uint32_t &ifIndex, uint32_t comparator, uint32_t &delta) {
     uint32_t ct, sum;
     ct = count_reg.at(ifIndex);
     sum = n_last_values_reg.at(ifIndex);
     if (ct == k) {
-        int32_t mean, old_m;
+        int32_t mean;
         mean = sum >> div_shift;
-
-        delta = static_cast<int32_t>(((div_10 * static_cast<int64_t>(mean)) >> 32));
-
+        delta = static_cast<uint32_t>(((div_10 * static_cast<uint64_t>(mean)) >> 32));
         delta_reg.at(ifIndex) = delta;
         sum = 0;
         ct = 0;
@@ -95,15 +92,49 @@ void SwitchNode::update_delta(uint32_t &ifIndex, uint32_t comparator, int32_t &d
     count_reg.at(ifIndex) = ct;
 }
 
-uint32_t max(uint64_t v1,uint64_t v2){
-    if(v1 > v2) return v1;
-    else return v2;
+void SwitchNode::update_telemetry_insertion_time(uint32_t &ifIndex, uint32_t pres_amt_bytes, uint32_t& delta) {
+    uint32_t obs_last_seen;
+    uint32_t tel_insertion_window;
+
+    obs_last_seen = obs_last_seen_reg.at(ifIndex).GetNanoSeconds();
+    tel_insertion_window = tel_insertion_window_reg.at(ifIndex).GetNanoSeconds();
+    if (tel_insertion_window == 0) {
+        tel_insertion_window = tel_insertion_min_window;
+        tel_insertion_window_reg.at(ifIndex) = Time(tel_insertion_window);
+    }
+
+    uint32_t past_amt_bytes;
+    past_amt_bytes = past_byte_cnt_reg.at(ifIndex);
+
+    uint32_t now = (Simulator::Now()).GetNanoSeconds();
+    if (obs_last_seen == 0) {
+        obs_last_seen = now;
+        obs_last_seen_reg.at(ifIndex) = Time(now);
+    }
+
+    if (now - obs_last_seen >= obs_window) {
+        int32_t delta_bytes = static_cast<int32_t>(pres_amt_bytes) - static_cast<int32_t>(past_amt_bytes);
+        if (delta_bytes > delta || delta_bytes < -delta) {
+            tel_insertion_window = tel_insertion_min_window;  // Decreases time if bytes difference was bigger than expected
+        } else {
+            tel_insertion_window = static_cast<uint32_t>(dint_min(max_t, static_cast<uint64_t>((static_cast<uint64_t>(tel_insertion_window) * alpha_1)>>alpha_2)));  // Increases time if bytes difference was smaller than expected
+        }
+
+        update_delta(ifIndex, pres_amt_bytes, delta);
+
+        past_byte_cnt_reg.at(ifIndex) = pres_amt_bytes;
+        pres_byte_cnt_reg.at(ifIndex) = 0;
+
+        tel_insertion_window_reg.at(ifIndex) = Time(tel_insertion_window);
+        obs_last_seen_reg.at(ifIndex) = Time(now);
+    }
 }
 
-uint32_t min(uint64_t v1,uint64_t v2){
+uint64_t SwitchNode::dint_min(uint64_t v1,uint64_t v2){
     if(v1 < v2) return v1;
     else return v2;
 }
+
 
 
 int SwitchNode::GetOutDev(Ptr<const Packet> p, CustomHeader &ch){
@@ -378,71 +409,34 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				// 	 ih->PushHop(Simulator::Now().GetTimeStep(), previous_bytes_reg.at(ifIndex), dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
 				// }
             } else if (m_ccMode == 11){ // DINT
-                // Get current simulator time
-                Time now = Simulator::Now();
-				Time obs_last_seen = obs_last_seen_reg.at(ifIndex);
-				// If no tel_insertion_window, set it to min
-				uint64_t val_tel_insertion_window;
-				Time tel_insertion_window;
-				if (tel_insertion_window.IsZero())
-				{
-					val_tel_insertion_window = Time(tel_insertion_min_window).GetNanoSeconds();
-					tel_insertion_window_reg.at(ifIndex) = Time(val_tel_insertion_window);
-				}
-				
-				// Get current and past amount of bytes
-				uint32_t amt_packets, pres_amt_bytes, delta, past_amt_bytes;
+                uint32_t amt_packets, pres_amt_bytes, delta;
 
 				amt_packets = packets_cnt_reg.at(ifIndex)+1;
 				packets_cnt_reg.at(ifIndex) = amt_packets;
 				pres_amt_bytes = pres_byte_cnt_reg.at(ifIndex) + p->GetSize();
 				pres_byte_cnt_reg.at(ifIndex) = pres_amt_bytes;
-				telemetry_byte_cnt_reg.at(ifIndex) = telemetry_byte_cnt_reg.at(ifIndex) + p->GetSize();
-				past_amt_bytes = past_byte_cnt_reg.at(ifIndex);
-				// Set delta
-				int32_t dint_delta = 0;
-				if(delta_reg.at(ifIndex) == 0) {
-					dint_delta = base_delta;
-				} else {
-					dint_delta = delta_reg.at(ifIndex);
-				}
-				delta_reg.at(ifIndex) = dint_delta;
-                // pseudo code DINT
-				// If no last time, then set it to now
-				if (obs_last_seen.IsZero())
-				{
-					obs_last_seen_reg.at(ifIndex) = now;
-					obs_last_seen = now;
-				}
-                if (now.GetNanoSeconds() - obs_last_seen.GetNanoSeconds() >= obs_window){
-                    int32_t diff_bytes = pres_amt_bytes - past_amt_bytes;
-					// std::cout << diff_bytes;
-					// std::cout << "\n";
-                    if (diff_bytes > dint_delta || diff_bytes < -1*dint_delta){
-                        val_tel_insertion_window = tel_insertion_min_window;
-                    } else {
-                        val_tel_insertion_window = min(max_t, ((val_tel_insertion_window*alpha_1)>>alpha_2));
-                    }
-                    update_delta(ifIndex, pres_amt_bytes, dint_delta);
-					past_byte_cnt_reg.at(ifIndex) = pres_amt_bytes;
-					pres_byte_cnt_reg.at(ifIndex) = 0;
-					// Update tel insertion window
-					tel_insertion_window_reg.at(ifIndex) = Time(val_tel_insertion_window);
-					obs_last_seen_reg.at(ifIndex) = now;
-                    //
-                }
-				// Update telemetry insertion time
-				Time previousInsertion = previous_insertion_reg.at(ifIndex);
-				Time telInsertionWindow = tel_insertion_window_reg.at(ifIndex);
 
-				if(previousInsertion.IsZero()){
-					previousInsertion = now;
-					previous_insertion_reg.at(ifIndex) = now;
+				// Set delta
+				uint32_t dint_delta = delta_reg.at(ifIndex);
+				if(dint_delta == 0) {
+					dint_delta = base_delta;
+					delta_reg.at(ifIndex) = dint_delta;
 				}
 				
-				if(now.GetNanoSeconds() - previousInsertion.GetNanoSeconds() >= telInsertionWindow.GetNanoSeconds()){
+				// Update telemetry insertion time
+				update_telemetry_insertion_time(ifIndex, pres_amt_bytes, dint_delta);
+
+				// Check if telemetry window has passed
+				Time previous_insertion = previous_insertion_reg.at(ifIndex);
+				Time tel_insertion_window = tel_insertion_window_reg.at(ifIndex);
+
+				if(previous_insertion.IsZero()){
+					previous_insertion = Simulator::Now();
+					previous_insertion_reg.at(ifIndex) = previous_insertion;
+				}
+				Time now = Simulator::Now();
+				if(now.GetNanoSeconds() - previous_insertion.GetNanoSeconds() >= tel_insertion_window.GetNanoSeconds()){
 					 // Insert telemetry
-					
                    	ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
 					previous_insertion_reg.at(ifIndex) = now;
 				}
