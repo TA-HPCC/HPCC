@@ -52,6 +52,7 @@ class SwitchNode : public Node{
 	//end
 
 	//LINT
+	static const int64_t obs_window_lint = 1000;
 	static const uint8_t alpha = 1; // Equals to 2^-1
 	static const uint8_t delta = 6; // Equals to 2^-1
 
