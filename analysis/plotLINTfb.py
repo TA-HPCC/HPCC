@@ -54,9 +54,9 @@ ax.set_xticks(range(1,11))
 ax.set_xticklabels([str(x) if x < 1000 else str(int(x/1000. + .5)) + 'K' if x < 1000.**2 else str(int(x/1000.**2 + .5)) + 'M' for x in fb_x_axis[1::2]])
 
 
-plt.legend(loc='upper left',prop={'size':24},ncol=1)
+plt.legend(bbox_to_anchor=(0.5, 1.2),loc='upper center',ncol=2)
 plt.tick_params(axis='both', which='major', labelsize=18)
-plt.tick_params(axis='y', which='major', labelsize=28)
+plt.tick_params(axis='y', which='major', labelsize=23)
 plt.ylabel(r'Slowdown', fontsize=28)    
 plt.xlabel('Flow Size [Bytes]', fontsize=28)
 #plt.show()
