@@ -26,9 +26,9 @@ class SwitchNode : public Node{
 	uint64_t m_lastPktTs[pCnt]; // ns
 	double m_u[pCnt];
 	//for DINT var
-	static const uint64_t tel_insertion_min_window = 1000000000;
-	static const int64_t obs_window = 100000000; // 1 Seg = 1000000 microseg
-	static const uint64_t max_t = 5000000000;
+	static const uint64_t tel_insertion_min_window = 100;
+	static const int64_t obs_window = 100; // 1 Seg = 1000000 microseg
+	static const uint64_t max_t = 500;
 
 	static const int32_t alpha_1 = 5;
 	static const int32_t alpha_2 = 2; //shift divisor
