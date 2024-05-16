@@ -24,6 +24,7 @@ public:
 
 private:
   void SendOnePacket (Ptr<SwitchNode> sw);
+  void SwitchNotifyDequeWithStep (Ptr<SwitchNode> sw, Ptr<Packet> p);
   uint32_t m_ccMode;
 };
 
@@ -31,6 +32,11 @@ SwitchNodeTestBase::SwitchNodeTestBase (std::string name, uint32_t ccMode)
   : TestCase (name),
     m_ccMode (ccMode)
 {
+}
+
+void SwitchNodeTestBase::SwitchNotifyDequeWithStep (Ptr<SwitchNode> sw, Ptr<Packet> p)
+{
+  sw->SwitchNotifyDequeue (0, 0, p);
 }
 
 void
@@ -62,15 +68,20 @@ SwitchNodeTestBase::SendOnePacket (Ptr<SwitchNode> sw)
   dev->SetQueue (CreateObject<BEgressQueue> ());
   dev->SetDataRate (defaultRate);
   sw->AddDevice(dev);
-  
+
   sw->SetAttribute("CcMode", UintegerValue(m_ccMode));
   if (m_ccMode == 11){
-    // DINT
+	for (size_t i = 0; i < 16; i++)
+	{
+		Simulator::Schedule (NanoSeconds (1+i), &SwitchNodeTestBase::SwitchNotifyDequeWithStep, this, sw, p);
+	}
+
+	
   }
   else {
-    // LINT
+    sw->SwitchNotifyDequeue (0, 0, p);
   }
-  sw->SwitchNotifyDequeue (0, 0, p);
+  
 }
 
 void
@@ -78,10 +89,25 @@ SwitchNodeTestBase::DoRun (void)
 {
   Ptr<SwitchNode> sw = CreateObject<SwitchNode>();
 
-  Simulator::Schedule (Seconds (1.0), &SwitchNodeTestBase::SendOnePacket, this, sw);
+  Simulator::Schedule (Seconds (0), &SwitchNodeTestBase::SendOnePacket, this, sw);
 
   Simulator::Run ();
-  NS_TEST_ASSERT_MSG_EQ(sw->delta_reg[0], 0, "Some failure message");
+	 
+  if (m_ccMode == 11){ //DINT Test
+	// Test if function is called
+	NS_TEST_EXPECT_MSG_NE(sw->packets_cnt_reg.at(0), 0, "update_telemetry_insertion_time function not called");
+	NS_TEST_EXPECT_MSG_NE(sw->obs_last_seen_reg.at(0), 0, "update_telemetry_insertion_time function not called");
+	NS_TEST_EXPECT_MSG_NE(sw->count_reg.at(0), 0, "update_delta function not called");
+	
+	//Logic test
+	NS_TEST_EXPECT_MSG_NE(sw->delta_reg.at(0), 300, "delta is not updated");
+	NS_TEST_EXPECT_MSG_EQ(sw->packets_cnt_reg.at(0), 16, "wrong packet count");
+	NS_TEST_EXPECT_MSG_EQ((sw->previous_insertion_reg.at(0)).GetNanoSeconds(), 16, "last insertion is not at last nanosec");
+
+  }	
+  else { //LINT Test
+
+  }
   Simulator::Destroy ();
 }
 

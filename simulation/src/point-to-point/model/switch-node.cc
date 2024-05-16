@@ -73,6 +73,7 @@ SwitchNode::SwitchNode(){
 
 // Updates the dynamic threshold according to the SIMPLE MOVING AVERAGE function of the last k measured throughputs
 void SwitchNode::update_delta(uint32_t &ifIndex, uint32_t comparator, uint32_t &delta) {
+	
     uint32_t ct, sum;
     ct = count_reg.at(ifIndex);
     sum = n_last_values_reg.at(ifIndex);
@@ -90,13 +91,15 @@ void SwitchNode::update_delta(uint32_t &ifIndex, uint32_t comparator, uint32_t &
 
     n_last_values_reg.at(ifIndex) = sum;
     count_reg.at(ifIndex) = ct;
+	
 }
 
 void SwitchNode::update_telemetry_insertion_time(uint32_t &ifIndex, uint32_t pres_amt_bytes, uint32_t& delta) {
     uint32_t obs_last_seen;
     uint32_t tel_insertion_window;
-
+	
     obs_last_seen = obs_last_seen_reg.at(ifIndex).GetNanoSeconds();
+	
     tel_insertion_window = tel_insertion_window_reg.at(ifIndex).GetNanoSeconds();
     if (tel_insertion_window == 0) {
         tel_insertion_window = tel_insertion_min_window;
@@ -110,9 +113,11 @@ void SwitchNode::update_telemetry_insertion_time(uint32_t &ifIndex, uint32_t pre
     if (obs_last_seen == 0) {
         obs_last_seen = now;
         obs_last_seen_reg.at(ifIndex) = Time(now);
+		
     }
 
     if (now - obs_last_seen >= obs_window) {
+		
         int32_t delta_bytes = static_cast<int32_t>(pres_amt_bytes) - static_cast<int32_t>(past_amt_bytes);
         if (delta_bytes > delta || delta_bytes < -delta) {
             tel_insertion_window = tel_insertion_min_window;  // Decreases time if bytes difference was bigger than expected
@@ -410,7 +415,7 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				// }
             } else if (m_ccMode == 11){ // DINT
                 uint32_t amt_packets, pres_amt_bytes, delta;
-
+				
 				amt_packets = packets_cnt_reg.at(ifIndex)+1;
 				packets_cnt_reg.at(ifIndex) = amt_packets;
 				pres_amt_bytes = pres_byte_cnt_reg.at(ifIndex) + p->GetSize();
