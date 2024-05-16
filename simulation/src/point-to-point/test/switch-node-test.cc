@@ -63,7 +63,13 @@ SwitchNodeTestBase::SendOnePacket (Ptr<SwitchNode> sw)
   dev->SetDataRate (defaultRate);
   sw->AddDevice(dev);
   
-  sw->SetAttribute("CcMode", UintegerValue(m_ccMode));  
+  sw->SetAttribute("CcMode", UintegerValue(m_ccMode));
+  if (m_ccMode == 11){
+    // DINT
+  }
+  else {
+    // LINT
+  }
   sw->SwitchNotifyDequeue (0, 0, p);
 }
 
