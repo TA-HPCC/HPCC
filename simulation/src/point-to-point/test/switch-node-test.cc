@@ -24,7 +24,7 @@ public:
 
 private:
   void SendOnePacket (Ptr<SwitchNode> sw);
-  void SwitchNotifyDequeWithStep (Ptr<SwitchNode> sw, Ptr<Packet> p);
+  void SwitchNotifyDequeueWithStep (Ptr<SwitchNode> sw, Ptr<Packet> p);
   uint32_t m_ccMode;
 };
 
@@ -34,7 +34,7 @@ SwitchNodeTestBase::SwitchNodeTestBase (std::string name, uint32_t ccMode)
 {
 }
 
-void SwitchNodeTestBase::SwitchNotifyDequeWithStep (Ptr<SwitchNode> sw, Ptr<Packet> p)
+void SwitchNodeTestBase::SwitchNotifyDequeueWithStep (Ptr<SwitchNode> sw, Ptr<Packet> p)
 {
   sw->SwitchNotifyDequeue (0, 0, p);
 }
@@ -73,13 +73,16 @@ SwitchNodeTestBase::SendOnePacket (Ptr<SwitchNode> sw)
   if (m_ccMode == 11){
 	for (size_t i = 0; i < 16; i++)
 	{
-		Simulator::Schedule (NanoSeconds (1+i), &SwitchNodeTestBase::SwitchNotifyDequeWithStep, this, sw, p);
+		Simulator::Schedule (NanoSeconds (1+i), &SwitchNodeTestBase::SwitchNotifyDequeueWithStep, this, sw, p);
 	}
 
 	
   }
   else {
-    sw->SwitchNotifyDequeue (0, 0, p);
+  for (size_t i = 0; i < 16; i++)
+	{
+		Simulator::Schedule (NanoSeconds (1+i), &SwitchNodeTestBase::SwitchNotifyDequeueWithStep, this, sw, p);
+	}
   }
   
 }
@@ -106,6 +109,9 @@ SwitchNodeTestBase::DoRun (void)
 
   }	
   else { //LINT Test
+  NS_TEST_EXPECT_MSG_NE(sw->past_device_obs_reg.at(0), 0, "ReportMetrics function not called");
+  NS_TEST_EXPECT_MSG_NE(sw->past_reported_obs_reg.at(0), 0, "ReportMetrics function not called");
+  NS_TEST_EXPECT_MSG_NE(sw->previous_insertion_reg.at(0), 0, "previous insertion is not updated");
 
   }
   Simulator::Destroy ();
