@@ -15,24 +15,26 @@
 
 namespace ns3 {
 
-class SwitchNodeTest : public TestCase
+class SwitchNodeTestBase : public TestCase
 {
 public:
-  SwitchNodeTest ();
+  SwitchNodeTestBase (std::string name, uint32_t ccMode);
 
   virtual void DoRun (void);
 
 private:
   void SendOnePacket (Ptr<SwitchNode> sw);
+  uint32_t m_ccMode;
 };
 
-SwitchNodeTest::SwitchNodeTest ()
-  : TestCase ("SwitchNode")
+SwitchNodeTestBase::SwitchNodeTestBase (std::string name, uint32_t ccMode)
+  : TestCase (name),
+    m_ccMode (ccMode)
 {
 }
 
 void
-SwitchNodeTest::SendOnePacket (Ptr<SwitchNode> sw)
+SwitchNodeTestBase::SendOnePacket (Ptr<SwitchNode> sw)
 {
   Ptr<Packet> p = Create<Packet> (1096);
 
@@ -48,7 +50,6 @@ SwitchNodeTest::SendOnePacket (Ptr<SwitchNode> sw)
   ipHeader.SetPayloadSize (p->GetSize());
   ipHeader.SetTtl (64);
   ipHeader.SetTos (0);
-  // ipHeader.SetIdentification (qp->m_ipid);
   p->AddHeader(ipHeader);
   // add ppp header
   PppHeader ppp;
@@ -62,23 +63,40 @@ SwitchNodeTest::SendOnePacket (Ptr<SwitchNode> sw)
   dev->SetDataRate (defaultRate);
   sw->AddDevice(dev);
   
-  sw->SetAttribute("CcMode", UintegerValue(12));  
+  sw->SetAttribute("CcMode", UintegerValue(m_ccMode));  
   sw->SwitchNotifyDequeue (0, 0, p);
 }
 
-
 void
-SwitchNodeTest::DoRun (void)
+SwitchNodeTestBase::DoRun (void)
 {
   Ptr<SwitchNode> sw = CreateObject<SwitchNode>();
 
-  Simulator::Schedule (Seconds (1.0), &SwitchNodeTest::SendOnePacket, this, sw);
+  Simulator::Schedule (Seconds (1.0), &SwitchNodeTestBase::SendOnePacket, this, sw);
 
   Simulator::Run ();
   NS_TEST_ASSERT_MSG_EQ(sw->delta_reg[0], 0, "Some failure message");
   Simulator::Destroy ();
 }
-//-----------------------------------------------------------------------------
+
+class SwitchNodeTestDINT : public SwitchNodeTestBase
+{
+public:
+  SwitchNodeTestDINT ()
+    : SwitchNodeTestBase ("SwitchNodeTestDINT", 11)
+  {
+  }
+};
+
+class SwitchNodeTestLINT : public SwitchNodeTestBase
+{
+public:
+  SwitchNodeTestLINT ()
+    : SwitchNodeTestBase ("SwitchNodeTestLINT", 12)
+  {
+  }
+};
+
 class SwitchNodeTestSuite : public TestSuite
 {
 public:
@@ -88,7 +106,8 @@ public:
 SwitchNodeTestSuite::SwitchNodeTestSuite ()
   : TestSuite ("switch-node", UNIT)
 {
-  AddTestCase (new SwitchNodeTest);
+  AddTestCase (new SwitchNodeTestDINT);
+  AddTestCase (new SwitchNodeTestLINT);
 }
 
 static SwitchNodeTestSuite g_SwitchNodeTestSuite;
