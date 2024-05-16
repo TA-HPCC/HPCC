@@ -25,46 +25,6 @@ class SwitchNode : public Node{
 	uint32_t m_lastPktSize[pCnt];
 	uint64_t m_lastPktTs[pCnt]; // ns
 	double m_u[pCnt];
-	//for DINT var
-	static const uint64_t tel_insertion_min_window = 1000;
-	static const int64_t obs_window = 1000; // 1 Seg = 1000000 microseg
-	static const uint64_t max_t = 10000;
-
-	static const int64_t alpha_1 = 5;
-	static const int8_t alpha_2 = 2; //shift divisor
-
-
-	static const int32_t k = 8;
-	static const int8_t div_shift = 3;
-
-	/***************************************************************/
-
-	static const int64_t div_10 = 0x1999999A; /// Used to divide a number by 10
-	// static const int64_t div_100 = 0x28F5C29;
-	static const int32_t base_delta = 300;
-	std::array<uint32_t,pCnt> past_byte_cnt_reg;
-	std::array<Time,pCnt> obs_last_seen_reg;
-	std::array<Time,pCnt> tel_insertion_window_reg;
-	std::array<uint32_t,pCnt> delta_reg;
-	std::array<uint32_t,pCnt> n_last_values_reg;
-	std::array<uint32_t,pCnt> count_reg;
-	
-	//end
-
-	//LINT
-	static const int64_t obs_window_lint = 1000;
-	static const uint8_t alpha = 1; // Equals to 2^-1
-	static const uint8_t delta = 6; // Equals to 2^-1
-
-	std::array<uint32_t,pCnt> pres_byte_cnt_reg;
-	std::array<uint32_t,pCnt> packets_cnt_reg;
-
-	std::array<Time,pCnt> previous_insertion_reg;
-	std::array<uint64_t,pCnt> previous_bytes_reg;
-
-	std::array<uint32_t,pCnt> past_device_obs_reg;
-	std::array<uint32_t,pCnt> past_reported_obs_reg;
-	//end
 
 protected:
 	bool m_ecnEnabled;
@@ -99,6 +59,47 @@ public:
 	// for approximate calc in PINT
 	int logres_shift(int b, int l);
 	int log2apprx(int x, int b, int m, int l); // given x of at most b bits, use most significant m bits of x, calc the result in l bits
+
+	//DINT
+	static const uint64_t tel_insertion_min_window = 1000;
+	static const int64_t obs_window = 1000; // 1 Seg = 1000000 microseg
+	static const uint64_t max_t = 10000;
+
+	static const int64_t alpha_1 = 5;
+	static const int8_t alpha_2 = 2; //shift divisor
+
+
+	static const int32_t k = 8;
+	static const int8_t div_shift = 3;
+
+	/***************************************************************/
+
+	static const int64_t div_10 = 0x1999999A; /// Used to divide a number by 10
+	// static const int64_t div_100 = 0x28F5C29;
+	static const int32_t base_delta = 300;
+	std::array<uint32_t,pCnt> past_byte_cnt_reg;
+	std::array<Time,pCnt> obs_last_seen_reg;
+	std::array<Time,pCnt> tel_insertion_window_reg;
+	std::array<uint32_t,pCnt> delta_reg;
+	std::array<uint32_t,pCnt> n_last_values_reg;
+	std::array<uint32_t,pCnt> count_reg;
+	
+	//end
+
+	//LINT
+	static const int64_t obs_window_lint = 1000;
+	static const uint8_t alpha = 1; // Equals to 2^-1
+	static const uint8_t delta = 6; // Equals to 2^-1
+
+	std::array<uint32_t,pCnt> pres_byte_cnt_reg;
+	std::array<uint32_t,pCnt> packets_cnt_reg;
+
+	std::array<Time,pCnt> previous_insertion_reg;
+	// std::array<uint64_t,pCnt> previous_bytes_reg; // For different PushHop approach
+
+	std::array<uint32_t,pCnt> past_device_obs_reg;
+	std::array<uint32_t,pCnt> past_reported_obs_reg;
+	//end
 };
 
 } /* namespace ns3 */

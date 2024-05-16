@@ -68,7 +68,7 @@ SwitchNode::SwitchNode(){
 	previous_insertion_reg.fill(Time());
 	past_device_obs_reg.fill(0);
 	past_reported_obs_reg.fill(0);
-	previous_bytes_reg.fill(0);
+	// previous_bytes_reg.fill(0);
 }
 
 // Updates the dynamic threshold according to the SIMPLE MOVING AVERAGE function of the last k measured throughputs
