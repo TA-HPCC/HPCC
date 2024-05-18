@@ -28,33 +28,33 @@ plt.gcf().subplots_adjust(bottom=0.15)
 wb_file = 'fct_wb50_all_dint.dat'
 
 
-DINT_1000000000_50_wb = [float(line.split()[2]) for line in open(wb_file).readlines()[0:]]     # web search
-DINT_1000000000_95_wb = [float(line.split()[3]) for line in open(wb_file).readlines()[0:]]     # web search
-DINT_1000000000_99_wb = [float(line.split()[4]) for line in open(wb_file).readlines()[0:]]     # web search
-DINT_1000000_50_wb = [float(line.split()[5]) for line in open(wb_file).readlines()[0:]]    # web search
-DINT_1000000_95_wb = [float(line.split()[6]) for line in open(wb_file).readlines()[0:]]    # web search
-DINT_1000000_99_wb = [float(line.split()[7]) for line in open(wb_file).readlines()[0:]]    # web search
-DINT_1000_50_wb = [float(line.split()[8]) for line in open(wb_file).readlines()[0:]]    # web sear>
-DINT_1000_95_wb = [float(line.split()[9]) for line in open(wb_file).readlines()[0:]]    # web sear>
-DINT_1000_99_wb = [float(line.split()[10]) for line in open(wb_file).readlines()[0:]]    # web sear>
-DINT_100_50_wb = [float(line.split()[11]) for line in open(wb_file).readlines()[0:]]    # web sear>
-DINT_100_95_wb = [float(line.split()[12]) for line in open(wb_file).readlines()[0:]]    # web sear>
-DINT_100_99_wb = [float(line.split()[13]) for line in open(wb_file).readlines()[0:]]    # web sear>
+DINT_alfa15_50_wb = [float(line.split()[2]) for line in open(wb_file).readlines()[0:]]     # web search
+DINT_alfa15_95_wb = [float(line.split()[3]) for line in open(wb_file).readlines()[0:]]     # web search
+DINT_alfa15_99_wb = [float(line.split()[4]) for line in open(wb_file).readlines()[0:]]     # web search
+DINT_alfa125_50_wb = [float(line.split()[5]) for line in open(wb_file).readlines()[0:]]    # web search
+DINT_alfa125_95_wb = [float(line.split()[6]) for line in open(wb_file).readlines()[0:]]    # web search
+DINT_alfa125_99_wb = [float(line.split()[7]) for line in open(wb_file).readlines()[0:]]    # web search
+DINT_alfa1125_50_wb = [float(line.split()[8]) for line in open(wb_file).readlines()[0:]]    # web sear>
+DINT_alfa1125_95_wb = [float(line.split()[9]) for line in open(wb_file).readlines()[0:]]    # web sear>
+DINT_alfa1125_99_wb = [float(line.split()[10]) for line in open(wb_file).readlines()[0:]]    # web sear>
+DINT_alfa10675_50_wb = [float(line.split()[11]) for line in open(wb_file).readlines()[0:]]    # web sear>
+DINT_alfa10675_95_wb = [float(line.split()[12]) for line in open(wb_file).readlines()[0:]]    # web sear>
+DINT_alfa10675_99_wb = [float(line.split()[13]) for line in open(wb_file).readlines()[0:]]    # web sear>
 wb_x_axis = [int(line.split()[1]) for line in open(wb_file).readlines()[0:]] # wb flow sizes
 
 
-plt.plot(np.linspace(0, 10, num=20),DINT_1000000000_95_wb, color='red', linestyle='-', label='DINT_1000000000',linewidth=4.0)
-plt.plot(np.linspace(0, 10, num=20),DINT_1000000_95_wb, color='blue', linestyle='--', label='DINT_1000000',linewidth=4.0)
-plt.plot(np.linspace(0, 10, num=20),DINT_1000_95_wb, color='green', linestyle='-.', label='DINT_1000',linewidth=4.0)
-plt.plot(np.linspace(0, 10, num=20),DINT_100_95_wb, color='purple', linestyle=':', label='DINT_100',linewidth=4.0)
+plt.plot(np.linspace(0, 10, num=20),DINT_alfa15_95_wb, color='red', linestyle='-', label='DINT alfa = 1.5',linewidth=4.0)
+plt.plot(np.linspace(0, 10, num=20),DINT_alfa125_95_wb, color='blue', linestyle='--', label='DINT alfa = 1.25 (original)',linewidth=4.0)
+plt.plot(np.linspace(0, 10, num=20),DINT_alfa1125_95_wb, color='green', linestyle='-.', label='DINT alfa = 1.125',linewidth=4.0)
+plt.plot(np.linspace(0, 10, num=20),DINT_alfa10675_95_wb, color='purple', linestyle=':', label='DINT alfa = 1.0675',linewidth=4.0)
 plt.ylim([1,11])
 ax.set_xticks(range(1,11))
 ax.set_xticklabels([str(x) if x < 1000 else str(int(x/1000. + .5)) + 'K' if x < 1000.**2 else str(int(x/1000.**2 + .5)) + 'M' for x in wb_x_axis[1::2]])
 
 
-plt.legend(loc='upper left',prop={'size':24},ncol=1)
+plt.legend(bbox_to_anchor=(0.5, 1.2),loc='upper center',ncol=2)
 plt.tick_params(axis='both', which='major', labelsize=18)
-plt.tick_params(axis='y', which='major', labelsize=28)
+plt.tick_params(axis='y', which='major', labelsize=23)
 plt.ylabel(r'Slowdown', fontsize=28)    
 plt.xlabel('Flow Size [Bytes]', fontsize=28)
 #plt.xlim([0, maxPkts])
