@@ -21,13 +21,12 @@ if __name__=="__main__":
         # For example, here we list two CC: 1. HPCC-PINT with utgt=95,AI=50Mbps,pint_log_base=1.05,pint_prob=1; 2. HPCC with utgt=95,ai=50Mbps.
         # For the exact naming, please check ../simulation/mix/fct_*.txt output by the simulation.
         CCs = [
-                'hpccPint95ai50log1.050p1.000',
-                'hp95ai50',
-		'lint95ai50',
-		'dint95ai50',
-		#'lint95ai50',
-               # 'lint',
-               # 'dint',
+                'lint95ai50_1',
+                'lint95ai50_2',
+                'lint95ai50_3',
+                'lint95ai50_4',
+                'lint95ai50_5',
+                'lint95ai50_6',
 
         ]
 
@@ -35,7 +34,7 @@ if __name__=="__main__":
         res = [[i/100.] for i in range(0, 100, step)]
         for cc in CCs:
                 #file = "%s_%s.txt"%(args.prefix, cc)
-                file = "../simulation/mix/%s_%s.txt"%(args.prefix, cc)
+                file = "param_tuning_delta_lint/%s_%s.txt"%(args.prefix, cc)
                 if type == 0:
                         cmd = "cat %s"%(file)+" | awk '{if ($4==100 && $6+$7<"+"%d"%time_limit+") {slow=$7/$8;print $5, slow<1?1:slow}}' | sort -n | awk '{print $2, $1}'"
                         # print cmd
