@@ -140,13 +140,13 @@ uint64_t SwitchNode::dint_min(uint64_t v1,uint64_t v2){
     else return v2;
 }
 
-bool SwitchNode::ReportMetrics(uint32_t &flowId, uint32_t presAmtBytes) {    
+bool SwitchNode::ReportMetrics(uint32_t &portId, uint32_t presAmtBytes) {    
     bool report = false;
 
     int32_t currentObs = presAmtBytes;
 
-    uint32_t pastDeviceObs = past_device_obs_reg.at(flowId);
-    uint32_t pastReportedObs = past_reported_obs_reg.at(flowId);
+    uint32_t pastDeviceObs = past_device_obs_reg.at(portId);
+    uint32_t pastReportedObs = past_reported_obs_reg.at(portId);
 
     int32_t latestDeviceObs = (currentObs - static_cast<int32_t>(pastDeviceObs)) >> alpha;
     latestDeviceObs = latestDeviceObs + static_cast<int32_t>(pastDeviceObs);
@@ -166,10 +166,10 @@ bool SwitchNode::ReportMetrics(uint32_t &flowId, uint32_t presAmtBytes) {
         {
             latestReportedObs = currentObs;
         }
-        past_reported_obs_reg.at(flowId) = latestReportedObs;
+        past_reported_obs_reg.at(portId) = latestReportedObs;
     }
 
-    past_device_obs_reg.at(flowId) = latestDeviceObs;
+    past_device_obs_reg.at(portId) = latestDeviceObs;
 
     return report;
 }
