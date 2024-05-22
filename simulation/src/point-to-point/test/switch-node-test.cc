@@ -42,7 +42,7 @@ void SwitchNodeTestBase::SwitchNotifyDequeueWithStep (Ptr<SwitchNode> sw, Ptr<Pa
 void
 SwitchNodeTestBase::SendOnePacket (Ptr<SwitchNode> sw)
 {
-  Ptr<Packet> p = Create<Packet> (1096);
+  Ptr<Packet> p = Create<Packet> ();
 
   UdpHeader udpHeader;
   udpHeader.SetDestinationPort (0);
@@ -70,20 +70,10 @@ SwitchNodeTestBase::SendOnePacket (Ptr<SwitchNode> sw)
   sw->AddDevice(dev);
 
   sw->SetAttribute("CcMode", UintegerValue(m_ccMode));
-  if (m_ccMode == 11){
 	for (size_t i = 0; i < 16; i++)
 	{
 		Simulator::Schedule (NanoSeconds (1+i), &SwitchNodeTestBase::SwitchNotifyDequeueWithStep, this, sw, p);
 	}
-
-	
-  }
-  else {
-  for (size_t i = 0; i < 16; i++)
-	{
-		Simulator::Schedule (NanoSeconds (1+i), &SwitchNodeTestBase::SwitchNotifyDequeueWithStep, this, sw, p);
-	}
-  }
   
 }
 
@@ -98,14 +88,16 @@ SwitchNodeTestBase::DoRun (void)
 	 
   if (m_ccMode == 11){ //DINT Test
 	// Test if function is called
-	NS_TEST_EXPECT_MSG_NE(sw->packets_cnt_reg.at(0), 0, "update_telemetry_insertion_time function not called");
-	NS_TEST_EXPECT_MSG_NE(sw->obs_last_seen_reg.at(0), 0, "update_telemetry_insertion_time function not called");
+	NS_TEST_EXPECT_MSG_NE(sw->packets_cnt_reg.at(0), 0, "DINT section not called");
+  
+	NS_TEST_EXPECT_MSG_NE(sw->obs_last_seen_reg.at(0).GetNanoSeconds(), 0, "update_telemetry_insertion_time function not called");
 	NS_TEST_EXPECT_MSG_NE(sw->count_reg.at(0), 0, "update_delta function not called");
+  std::cout << sw->count_reg.at(0) << "\n";
 	
 	//Logic test
-	NS_TEST_EXPECT_MSG_NE(sw->delta_reg.at(0), 300, "delta is not updated");
+	NS_TEST_EXPECT_MSG_EQ(sw->delta_reg.at(0), (42*8/8)/10, "delta is correctly updated");
 	NS_TEST_EXPECT_MSG_EQ(sw->packets_cnt_reg.at(0), 16, "wrong packet count");
-	NS_TEST_EXPECT_MSG_EQ((sw->previous_insertion_reg.at(0)).GetNanoSeconds(), 16, "last insertion is not at last nanosec");
+	NS_TEST_EXPECT_MSG_EQ(sw->previous_insertion_reg.at(0).GetNanoSeconds(), 16, "last insertion is not at last nanosec");
 
   }	
   else { //LINT Test
