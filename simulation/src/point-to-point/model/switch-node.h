@@ -12,8 +12,8 @@ namespace ns3 {
 class Packet;
 
 class SwitchNode : public Node{
-	static const uint32_t pCnt = 257;	// Number of ports used
-	static const uint32_t qCnt = 8;	// Number of queues/priorities used
+	const uint32_t pCnt = 257;	// Number of ports used
+	const uint32_t qCnt = 8;	// Number of queues/priorities used
 	uint32_t m_ecmpSeed;
 	std::unordered_map<uint32_t, std::vector<int> > m_rtTable; // map from ip address (u32) to possible ECMP port (index of dev)
 
@@ -61,22 +61,22 @@ public:
 	int log2apprx(int x, int b, int m, int l); // given x of at most b bits, use most significant m bits of x, calc the result in l bits
 
 	//DINT
-	static const uint64_t tel_insertion_min_window = 1;
-	static const int64_t obs_window = 1; // 1 Seg = 1000000 microseg
-	static const uint64_t max_t = 100;
+	const uint64_t tel_insertion_min_window = 1;
+	const int64_t obs_window = 1; // 1 Seg = 1000000 microseg
+	const uint64_t max_t = 100;
 
-	static const int64_t alpha_1 = 5;
-	static const int8_t alpha_2 = 2; //shift divisor
+	const int64_t alpha_1 = 5;
+	const int8_t alpha_2 = 2; //shift divisor
 
 
-	static const int32_t k = 8;
-	static const int8_t div_shift = 3;
+	const int32_t k = 8;
+	const int8_t div_shift = 3;
 
 	/***************************************************************/
 
-	static const int64_t div_10 = 0x1999999A; /// Used to divide a number by 10
-	// static const int64_t div_100 = 0x28F5C29;
-	static const int32_t base_delta = 300;
+	const int64_t div_10 = 0x1999999A; /// Used to divide a number by 10
+	// const int64_t div_100 = 0x28F5C29;
+	const int32_t base_delta = 300;
 	std::array<uint32_t,pCnt> past_byte_cnt_reg;
 	std::array<Time,pCnt> obs_last_seen_reg;
 	std::array<Time,pCnt> tel_insertion_window_reg;
@@ -87,9 +87,9 @@ public:
 	//end
 
 	//LINT
-	static const int64_t obs_window_lint = 1000;
-	static const uint8_t alpha = 1; // Equals to 2^-1
-	static const uint8_t delta = 6; // Equals to 2^-1
+	const int64_t obs_window_lint = 1000;
+	const uint8_t alpha = 1; // Equals to 2^-1
+	const uint8_t delta = 6; // Equals to 2^-1
 
 	std::array<uint32_t,pCnt> pres_byte_cnt_reg;
 	std::array<uint32_t,pCnt> packets_cnt_reg;

@@ -140,6 +140,39 @@ uint64_t SwitchNode::dint_min(uint64_t v1,uint64_t v2){
     else return v2;
 }
 
+bool SwitchNode::ReportMetrics(uint32_t &portId, uint32_t presAmtBytes) {    
+    bool report = false;
+
+    int32_t currentObs = presAmtBytes;
+
+    uint32_t pastDeviceObs = past_device_obs_reg.at(portId);
+    uint32_t pastReportedObs = past_reported_obs_reg.at(portId);
+
+    int32_t latestDeviceObs = (currentObs - static_cast<int32_t>(pastDeviceObs)) >> alpha;
+    latestDeviceObs = latestDeviceObs + static_cast<int32_t>(pastDeviceObs);
+    if (pastDeviceObs == 0)
+    {
+        latestDeviceObs = currentObs;
+    }
+
+    int32_t deviation = latestDeviceObs - static_cast<int32_t>(pastReportedObs);
+    if (deviation > (latestDeviceObs >> delta) || deviation < -1 * (latestDeviceObs >> delta))
+    {
+        report = true;
+
+        int32_t latestReportedObs = (currentObs - static_cast<int32_t>(pastReportedObs)) >> alpha;
+        latestReportedObs = latestReportedObs + static_cast<int32_t>(pastReportedObs);
+        if (pastReportedObs == 0)
+        {
+            latestReportedObs = currentObs;
+        }
+        past_reported_obs_reg.at(portId) = latestReportedObs;
+    }
+
+    past_device_obs_reg.at(portId) = latestDeviceObs;
+
+    return report;
+}
 
 
 int SwitchNode::GetOutDev(Ptr<const Packet> p, CustomHeader &ch){
@@ -396,23 +429,17 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 					previousInsertion = time;
 					previous_insertion_reg.at(ifIndex) = now;
 					ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
-					// previous_bytes_reg.at(ifIndex) = m_txBytes[ifIndex];
 				}
-                if (time - previousInsertion >= obs_window_lint)
+                if (time - previousInsertion >= obs_window_lint) // Check interval between previous insertion and current time
 				{
 					bool report = ReportMetrics(ifIndex, amt_bytes);
 
 					if (report) {
 						ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
 						previous_insertion_reg.at(ifIndex) = now;
-						// previous_bytes_reg.at(ifIndex) = m_txBytes[ifIndex];
 					}
 					pres_byte_cnt_reg.at(ifIndex) = 0;
 				}
-				// else
-				// {
-				// 	 ih->PushHop(Simulator::Now().GetTimeStep(), previous_bytes_reg.at(ifIndex), dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
-				// }
             } else if (m_ccMode == 11){ // DINT
                 uint32_t amt_packets, pres_amt_bytes, delta;
 				
@@ -473,41 +500,5 @@ int SwitchNode::log2apprx(int x, int b, int m, int l){
 	}
 	return int(log2(x) * (1<<logres_shift(b, l)));
 }
-
-bool SwitchNode::ReportMetrics(uint32_t &portId, uint32_t presAmtBytes) {    
-    bool report = false;
-
-    int32_t currentObs = presAmtBytes;
-
-    uint32_t pastDeviceObs = past_device_obs_reg.at(portId);
-    uint32_t pastReportedObs = past_reported_obs_reg.at(portId);
-
-    int32_t latestDeviceObs = (currentObs - static_cast<int32_t>(pastDeviceObs)) >> alpha;
-    latestDeviceObs = latestDeviceObs + static_cast<int32_t>(pastDeviceObs);
-    if (pastDeviceObs == 0)
-    {
-        latestDeviceObs = currentObs;
-    }
-
-    int32_t deviation = latestDeviceObs - static_cast<int32_t>(pastReportedObs);
-    if (deviation > (latestDeviceObs >> delta) || deviation < -1 * (latestDeviceObs >> delta))
-    {
-        report = true;
-
-        int32_t latestReportedObs = (currentObs - static_cast<int32_t>(pastReportedObs)) >> alpha;
-        latestReportedObs = latestReportedObs + static_cast<int32_t>(pastReportedObs);
-        if (pastReportedObs == 0)
-        {
-            latestReportedObs = currentObs;
-        }
-        past_reported_obs_reg.at(portId) = latestReportedObs;
-    }
-
-    past_device_obs_reg.at(portId) = latestDeviceObs;
-
-    return report;
-}
-
-
 
 }
