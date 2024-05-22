@@ -12,8 +12,8 @@ namespace ns3 {
 class Packet;
 
 class SwitchNode : public Node{
-	const uint32_t pCnt = 257;	// Number of ports used
-	const uint32_t qCnt = 8;	// Number of queues/priorities used
+	static const uint32_t pCnt = 257;	// Number of ports used
+	static const uint32_t qCnt = 8;	// Number of queues/priorities used
 	uint32_t m_ecmpSeed;
 	std::unordered_map<uint32_t, std::vector<int> > m_rtTable; // map from ip address (u32) to possible ECMP port (index of dev)
 
@@ -61,9 +61,9 @@ public:
 	int log2apprx(int x, int b, int m, int l); // given x of at most b bits, use most significant m bits of x, calc the result in l bits
 
 	//DINT
-	const uint64_t tel_insertion_min_window = 1;
-	const int64_t obs_window = 1; // 1 Seg = 1000000 microseg
-	const uint64_t max_t = 100;
+	const uint64_t tel_insertion_min_window = 100000;
+	const int64_t obs_window = 100000; // 1 Seg = 1000000 microseg
+	const uint64_t max_t = 1000000;
 
 	const int64_t alpha_1 = 5;
 	const int8_t alpha_2 = 2; //shift divisor
