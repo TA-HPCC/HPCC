@@ -16,7 +16,7 @@ import numpy as np
 import argparse
 
 parser = argparse.ArgumentParser(description='')
-parser.add_argument('-param', dest='param', action='store', default='k', help="alfa / k")
+parser.add_argument('-param', dest='param', action='store', default='k', help="alpha / k")
 parser.add_argument('-topo', dest='topo', action='store', default='fat')
 parser.add_argument('-traf', dest='traffic', action='store', default='fb', help="fb or wb")
 args = parser.parse_args()
@@ -35,7 +35,7 @@ fig, ax = plt.subplots(figsize=(10,5))
 plt.grid()
 plt.gcf().subplots_adjust(bottom=0.15)
 
-file = 'fct_' + traf + '50_all_dint_' + topo + '_' + param + '.dat'
+file = 'fct_' + traf + '50_' + param + '_dint_' + topo + '.dat'
 
 DINT_1_50 = [float(line.split()[2]) for line in open(file).readlines()[0:]]     # web search
 DINT_1_95 = [float(line.split()[3]) for line in open(file).readlines()[0:]]     # web search
@@ -51,42 +51,47 @@ DINT_4_95 = [float(line.split()[12]) for line in open(file).readlines()[0:]]    
 DINT_4_99 = [float(line.split()[13]) for line in open(file).readlines()[0:]]    # web sear>
 fb_x_axis = [int(line.split()[1]) for line in open(file).readlines()[0:]] # fb flow sizes
 
-if param == 'alfa' :
+if param == 'alpha' :
     # Print the DINT_1_95_fb list (for verification)
-    print "DINT alfa 1.5:", DINT_1_95
+    print "DINT alpha 1.5:", DINT_1_95
 
     # Calculate and print the average of DINT_4_95_fb
-    average_DINT_alfa15_95_fb = sum(DINT_1_95) / len(DINT_1_95)
-    print "Average of DINT alfa 1.5:", average_DINT_alfa15_95_fb
+    average_DINT_alpha15_95_fb = sum(DINT_1_95) / len(DINT_1_95)
+    print "Average of DINT alpha 1.5:", average_DINT_alpha15_95_fb
 
     # Print the DINT_1_95_fb list (for verification)
-    print "DINT alfa 1.25:", DINT_2_95
+    print "DINT alpha 1.25:", DINT_2_95
 
     # Calculate and print the average of DINT_4_95_fb
-    average_DINT_alfa125_95_fb = sum(DINT_2_95) / len(DINT_2_95)
-    print "Average of DINT alfa 1.25:", average_DINT_alfa125_95_fb
+    average_DINT_alpha125_95_fb = sum(DINT_2_95) / len(DINT_2_95)
+    print "Average of DINT alpha 1.25:", average_DINT_alpha125_95_fb
 
     # Print the DINT_1_95_fb list (for verification)
-    print "DINT alfa 1.125:", DINT_3_95
+    print "DINT alpha 1.125:", DINT_3_95
 
     # Calculate and print the average of DINT_4_95_fb
-    average_DINT_alfa1125_95_fb = sum(DINT_3_95) / len(DINT_3_95)
-    print "Average of DINT alfa 1.125:", average_DINT_alfa1125_95_fb
+    average_DINT_alpha1125_95_fb = sum(DINT_3_95) / len(DINT_3_95)
+    print "Average of DINT alpha 1.125:", average_DINT_alpha1125_95_fb
 
     # Print the DINT_1_95_fb list (for verification)
-    print "DINT alfa 1.0675:", DINT_4_95
+    print "DINT alpha 1.0675:", DINT_4_95
 
     # Calculate and print the average of DINT_4_95_fb
-    average_DINT_alfa10675_95_fb = sum(DINT_4_95) / len(DINT_4_95)
-    print "Average of DINT alfa 1.0675:", average_DINT_alfa10675_95_fb
+    average_DINT_alpha10675_95_fb = sum(DINT_4_95) / len(DINT_4_95)
+    print "Average of DINT alpha 1.0675:", average_DINT_alpha10675_95_fb
     
-if param == 'k' :
+    plt.plot(np.linspace(0, 10, num=20),DINT_1_95, color='red', linestyle='-', label='DINT alpha = 1.5',linewidth=4.0)
+    plt.plot(np.linspace(0, 10, num=20),DINT_2_95, color='blue', linestyle='--', label='DINT alpha = 1.25',linewidth=4.0)
+    plt.plot(np.linspace(0, 10, num=20),DINT_3_95, color='green', linestyle='-.', label='DINT alpha = 1.125',linewidth=4.0)
+    plt.plot(np.linspace(0, 10, num=20),DINT_4_95, color='purple', linestyle=':', label='DINT alpha = 1.0675',linewidth=4.0)
+    
+elif param == 'k' :
     # Print the DINT_1_95_fb list (for verification)
     print "DINT k 16:", DINT_1_95
 
     # Calculate and print the average of DINT_4_95_fb
     average_DINT_k16_95_fb = sum(DINT_1_95) / len(DINT_1_95)
-    print "Average of k 16:", average_DINT_k16_95_fb
+    print "Average of DINT k 16:", average_DINT_k16_95_fb
 
     # Print the DINT_1_95_fb list (for verification)
     print "DINT k 8:", DINT_2_95
@@ -108,11 +113,13 @@ if param == 'k' :
     # Calculate and print the average of DINT_4_95_fb
     average_DINT_k2_95_fb = sum(DINT_4_95) / len(DINT_4_95)
     print "Average of DINT k 2:", average_DINT_k2_95_fb
+    
+    plt.plot(np.linspace(0, 10, num=20),DINT_1_95, color='red', linestyle='-', label='DINT k = 16',linewidth=4.0)
+    plt.plot(np.linspace(0, 10, num=20),DINT_2_95, color='blue', linestyle='--', label='DINT k = 8',linewidth=4.0)
+    plt.plot(np.linspace(0, 10, num=20),DINT_3_95, color='green', linestyle='-.', label='DINT k = 4',linewidth=4.0)
+    plt.plot(np.linspace(0, 10, num=20),DINT_4_95, color='purple', linestyle=':', label='DINT k = 2',linewidth=4.0)
 
-plt.plot(np.linspace(0, 10, num=20),DINT_1_95, color='red', linestyle='-', label='DINT alfa = 1.5',linewidth=4.0)
-plt.plot(np.linspace(0, 10, num=20),DINT_2_95, color='blue', linestyle='--', label='DINT alfa = 8',linewidth=4.0)
-plt.plot(np.linspace(0, 10, num=20),DINT_3_95, color='green', linestyle='-.', label='DINT alfa = 4',linewidth=4.0)
-plt.plot(np.linspace(0, 10, num=20),DINT_4_95, color='purple', linestyle=':', label='DINT alfa = 2',linewidth=4.0)
+
 plt.ylim([1,11])
 ax.set_xticks(range(1,11))
 ax.set_xticklabels([str(x) if x < 1000 else str(int(x/1000. + .5)) + 'K' if x < 1000.**2 else str(int(x/1000.**2 + .5)) + 'M' for x in fb_x_axis[1::2]])
@@ -123,7 +130,7 @@ plt.tick_params(axis='both', which='major', labelsize=18)
 plt.tick_params(axis='y', which='major', labelsize=23)
 plt.ylabel(r'Slowdown', fontsize=28)    
 plt.xlabel('Flow Size [Bytes]', fontsize=28)
-#plt.xlim([0, maxPalfats])
+#plt.xlim([0, maxPalphats])
 plt.tight_layout()
 plt.savefig(output_file+'.pdf')
 plt.savefig(output_file+'.png')
@@ -143,32 +150,32 @@ for i,a in enumerate(aRange):
             if a != 7.75:
                 continue
             #print 'HERE', hybridAverages
-            #plt.plot(xrange(maxPalfats+2),[alfa]+hybridAverages[p2][i], linestyle, label='Hybrid('+str(p2)+')')
+            #plt.plot(xrange(maxPalphats+2),[alpha]+hybridAverages[p2][i], linestyle, label='Hybrid('+str(p2)+')')
             linestyle = '-'
-            plt.plot(xrange(maxPalfats+2),[alfa]+hybridAverages[p2][i], linestyle, label='Hybrid',linewidth=4.0)
-            #plt.plot(xrange(maxPalfats+2),[alfa]+hybridAverages[p2][i], linestyle, label='Hybrid('+str(p2)+','+str(a)+')')
-    p = a/alfa
+            plt.plot(xrange(maxPalphats+2),[alpha]+hybridAverages[p2][i], linestyle, label='Hybrid',linewidth=4.0)
+            #plt.plot(xrange(maxPalphats+2),[alpha]+hybridAverages[p2][i], linestyle, label='Hybrid('+str(p2)+','+str(a)+')')
+    p = a/alpha
     #print histogram, 
     #print averages[i], p           
-    #plt.plot(xrange(maxPalfats+1),averages[i], linestyle, label=str(a) + ' / alfa')
-    #plt.plot(xrange(maxPalfats+2),[alfa]+averages[i], linestyle, label='XOR('+str(p)+')')
-    #plt.plot(xrange(maxPalfats+2),[alfa]+averages[i], linestyle, label='XOR')
+    #plt.plot(xrange(maxPalphats+1),averages[i], linestyle, label=str(a) + ' / alpha')
+    #plt.plot(xrange(maxPalphats+2),[alpha]+averages[i], linestyle, label='XOR('+str(p)+')')
+    #plt.plot(xrange(maxPalphats+2),[alpha]+averages[i], linestyle, label='XOR')
     if True:
-        #plt.plot(xrange(maxPalfats+2),[alfa]+averages[i], linestyle, label='XOR('+str(a)+')')
+        #plt.plot(xrange(maxPalphats+2),[alpha]+averages[i], linestyle, label='XOR('+str(a)+')')
         if a != 1:
             continue
         linestyle = '--'
-        plt.plot(xrange(maxPalfats+2),[alfa]+averages[i], linestyle, label='XOR',linewidth=4.0)
+        plt.plot(xrange(maxPalphats+2),[alpha]+averages[i], linestyle, label='XOR',linewidth=4.0)
     sys.stdout.flush()
 
         
 linestyle = ':'    
-plt.plot(xrange(maxPalfats+1),averagesCC, linestyle, label='Baseline',linewidth=4.0)    
+plt.plot(xrange(maxPalphats+1),averagesCC, linestyle, label='Baseline',linewidth=4.0)    
 plt.legend(loc='best',prop={'size':24},ncol=1)
-plt.ticalfa_params(axis='both', which='major', labelsize=28)
+plt.ticalpha_params(axis='both', which='major', labelsize=28)
 plt.ylabel(r'$E$[Missing Hops]', fontsize=28)    
-plt.xlabel('Number of Pacalfaets', fontsize=28)
-plt.xlim([0, maxPalfats])
+plt.xlabel('Number of Pacalphaets', fontsize=28)
+plt.xlim([0, maxPalphats])
 plt.savefig(fName+'.pdf')
 plt.savefig(fName+'.png')
 #plt.show()
