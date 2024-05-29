@@ -40,8 +40,8 @@ private:
 	void CheckAndSendPfc(uint32_t inDev, uint32_t qIndex);
 	void CheckAndSendResume(uint32_t inDev, uint32_t qIndex);
 	//For DINT
-	void update_delta(uint32_t &flow_id, uint32_t comparator, uint32_t &delta);
-	void update_telemetry_insertion_time(uint32_t &ifIndex, uint32_t pres_amt_bytes, uint32_t& delta);
+	void update_delta(uint32_t &flow_id, uint32_t comparator, int32_t &delta);
+	void update_telemetry_insertion_time(uint32_t &ifIndex, uint32_t pres_amt_bytes, int32_t& delta);
 	uint64_t dint_min(uint64_t v1,uint64_t v2);
 	// LINT
 	bool ReportMetrics(uint32_t &flowId, uint32_t presAmtBytes);
@@ -61,9 +61,9 @@ public:
 	int log2apprx(int x, int b, int m, int l); // given x of at most b bits, use most significant m bits of x, calc the result in l bits
 
 	//DINT
-	const uint64_t tel_insertion_min_window = 100000;
-	const int64_t obs_window = 100000; // 1 Seg = 1000000 microseg
-	const uint64_t max_t = 1000000;
+	const uint64_t tel_insertion_min_window = 1000;
+	const int64_t obs_window = 1000; // 1 Seg = 1000000 microseg
+	const uint64_t max_t = 10000;
 
 	const int64_t alpha_1 = 5;
 	const int8_t alpha_2 = 2; //shift divisor
