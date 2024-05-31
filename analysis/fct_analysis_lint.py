@@ -12,6 +12,7 @@ if __name__=="__main__":
         parser.add_argument('-t', dest='type', action='store', type=int, default=0, help="0: normal, 1: incast, 2: all")
         parser.add_argument('-T', dest='time_limit', action='store', type=int, default=3000000000, help="only consider flows that finish before T")
         parser.add_argument('-b', dest='bw', action='store', type=int, default=25, help="bandwidth of edge link (Gbps)")
+        parser.add_argument('-prm', dest='param', action='store', default="", help="param")
         args = parser.parse_args()
 
         type = args.type
@@ -32,7 +33,7 @@ if __name__=="__main__":
         res = [[i/100.] for i in range(0, 100, step)]
         for cc in CCs:
                 #file = "%s_%s.txt"%(args.prefix, cc)
-                file = "param_tuning_obs_lint/%s_%s.txt"%(args.prefix, cc)
+                file = "param_tuning_%s_lint/%s_%s.txt"%(args.param,args.prefix, cc)
                 if type == 0:
                         cmd = "cat %s"%(file)+" | awk '{if ($4==100 && $6+$7<"+"%d"%time_limit+") {slow=$7/$8;print $5, slow<1?1:slow}}' | sort -n | awk '{print $2, $1}'"
                         # print cmd

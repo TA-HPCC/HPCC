@@ -35,7 +35,7 @@ if __name__=="__main__":
         res = [[i/100.] for i in range(0, 100, step)]
         for cc in CCs:
                 #file = "%s_%s.txt"%(args.prefix, cc)
-                file = "../simulation/mix/%s_%s.txt"%(args.prefix, cc)
+                file = "./Error/E\ 1/%s_%s.txt"%(args.prefix, cc)
                 if type == 0:
                         cmd = "cat %s"%(file)+" | awk '{if ($4==100 && $6+$7<"+"%d"%time_limit+") {slow=$7/$8;print $5, slow<1?1:slow}}' | sort -n | awk '{print $2, $1}'"
                         # print cmd

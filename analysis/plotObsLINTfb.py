@@ -14,6 +14,17 @@ import os.path
 from os import path
 import numpy as np
 
+
+def median(data):
+    sorted_data = sorted(data)
+    n = len(sorted_data)
+    mid = n // 2
+    if n % 2 == 0:
+        return (sorted_data[mid - 1] + sorted_data[mid]) / 2.0
+    else:
+        return sorted_data[mid]
+    
+    
 #matplotlib.rcParams['ps.useafm'] = True
 #matplotlib.rcParams['pdf.use14corefonts'] = True
 #matplotlib.rcParams['text.usetex'] = True
@@ -49,10 +60,37 @@ plt.plot(np.linspace(0, 10, num=20),LINT_2_95_fb, color='blue', linestyle='--', 
 plt.plot(np.linspace(0, 10, num=20),LINT_3_95_fb, color='green', linestyle='-.', label='LINT obs_window = 100 micro s',linewidth=4.0)
 plt.plot(np.linspace(0, 10, num=20),LINT_4_95_fb, color='purple', linestyle=':', label='LINT obs_window = 1 ms',linewidth=4.0)
 
-plt.ylim([1,11])
+
 ax.set_xticks(range(1,11))
 ax.set_xticklabels([str(x) if x < 1000 else str(int(x/1000. + .5)) + 'K' if x < 1000.**2 else str(int(x/1000.**2 + .5)) + 'M' for x in fb_x_axis[1::2]])
 
+# Print the LINT_1_95_fb list (for verification)
+print "LINT_1_95_fb:", LINT_1_95_fb
+
+# Calculate and print the average of LINT_4_95_fb
+average_LINT_1_95_fb = sum(LINT_1_95_fb) / len(LINT_1_95_fb)
+print "Average of LINT_1_95_fb:", average_LINT_1_95_fb
+
+# Print the LINT_2_95_fb list (for verification)
+print "LINT_2_95_fb:", LINT_2_95_fb
+
+# Calculate and print the average of LINT_2_95_fb
+average_LINT_2_95_fb = sum(LINT_2_95_fb) / len(LINT_2_95_fb)
+print "Average of LINT_2_95_fb:", average_LINT_2_95_fb
+
+# Print the LINT_3_95_fb list (for verification)
+print "LINT_3_95_fb:", LINT_3_95_fb
+
+# Calculate and print the average of LINT_4_95_fb
+average_LINT_3_95_fb = sum(LINT_3_95_fb) / len(LINT_3_95_fb)
+print "Average of LINT_3_95_fb:", average_LINT_3_95_fb
+
+# Print the LINT_4_95_fb list (for verification)
+print "LINT_4_95_fb:", LINT_4_95_fb
+
+# Calculate and print the average of LINT_4_95_fb
+average_LINT_4_95_fb = sum(LINT_4_95_fb) / len(LINT_4_95_fb)
+print "Average of LINT_4_95_fb:", average_LINT_4_95_fb
 
 plt.legend(bbox_to_anchor=(0.5, 1.2),loc='upper center',ncol=2)
 plt.tick_params(axis='both', which='major', labelsize=18)
@@ -61,50 +99,6 @@ plt.ylabel(r'Slowdown', fontsize=28)
 plt.xlabel('Flow Size [Bytes]', fontsize=28)
 #plt.xlim([0, maxPkts])
 plt.tight_layout()
-plt.savefig('fb.pdf')
-plt.savefig('fb.png')
+plt.savefig('facebook_95p.pdf')
+plt.savefig('facebook_95p.png')
 exit()
-
-HPCC = 0
-
-#plt.tight_layout()
-#for p in pRange:
-#print histogram, 
-for i,a in enumerate(aRange):
-    linestyle = '-' if i < 3 else '--'
-    if True:
-        for j,p2 in enumerate(p2Range):
-            if j > 2:
-                linestyle = ':'
-            if a != 7.75:
-                continue
-            #print 'HERE', hybridAverages
-            #plt.plot(xrange(maxPkts+2),[k]+hybridAverages[p2][i], linestyle, label='Hybrid('+str(p2)+')')
-            linestyle = '-'
-            plt.plot(xrange(maxPkts+2),[k]+hybridAverages[p2][i], linestyle, label='Hybrid',linewidth=4.0)
-            #plt.plot(xrange(maxPkts+2),[k]+hybridAverages[p2][i], linestyle, label='Hybrid('+str(p2)+','+str(a)+')')
-    p = a/k
-    #print histogram, 
-    #print averages[i], p           
-    #plt.plot(xrange(maxPkts+1),averages[i], linestyle, label=str(a) + ' / k')
-    #plt.plot(xrange(maxPkts+2),[k]+averages[i], linestyle, label='XOR('+str(p)+')')
-    #plt.plot(xrange(maxPkts+2),[k]+averages[i], linestyle, label='XOR')
-    if True:
-        #plt.plot(xrange(maxPkts+2),[k]+averages[i], linestyle, label='XOR('+str(a)+')')
-        if a != 1:
-            continue
-        linestyle = '--'
-        plt.plot(xrange(maxPkts+2),[k]+averages[i], linestyle, label='XOR',linewidth=4.0)
-    sys.stdout.flush()
-
-        
-linestyle = ':'    
-plt.plot(xrange(maxPkts+1),averagesCC, linestyle, label='Baseline',linewidth=4.0)    
-plt.legend(loc='best',prop={'size':24},ncol=1)
-plt.tick_params(axis='both', which='major', labelsize=28)
-plt.ylabel(r'$E$[Missing Hops]', fontsize=28)    
-plt.xlabel('Number of Packets', fontsize=28)
-plt.xlim([0, maxPkts])
-plt.savefig(fName+'.pdf')
-plt.savefig(fName+'.png')
-#plt.show()

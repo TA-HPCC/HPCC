@@ -14,6 +14,16 @@ import os.path
 from os import path
 import numpy as np
 
+
+def median(data):
+    sorted_data = sorted(data)
+    n = len(sorted_data)
+    mid = n // 2
+    if n % 2 == 0:
+        return (sorted_data[mid - 1] + sorted_data[mid]) / 2.0
+    else:
+        return sorted_data[mid]
+    
 #matplotlib.rcParams['ps.useafm'] = True
 #matplotlib.rcParams['pdf.use14corefonts'] = True
 #matplotlib.rcParams['text.usetex'] = True

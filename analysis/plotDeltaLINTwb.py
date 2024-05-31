@@ -14,6 +14,17 @@ import os.path
 from os import path
 import numpy as np
 
+
+def median(data):
+    sorted_data = sorted(data)
+    n = len(sorted_data)
+    mid = n // 2
+    if n % 2 == 0:
+        return (sorted_data[mid - 1] + sorted_data[mid]) / 2.0
+    else:
+        return sorted_data[mid]
+    
+    
 #matplotlib.rcParams['ps.useafm'] = True
 #matplotlib.rcParams['pdf.use14corefonts'] = True
 #matplotlib.rcParams['text.usetex'] = True
@@ -49,20 +60,54 @@ LINT_6_99_wb = [float(line.split()[19]) for line in open(wb_file).readlines()[0:
 
 wb_x_axis = [int(line.split()[1]) for line in open(wb_file).readlines()[0:]] # wb flow sizes
 
+# Print the LINT_1_95_wb list (for verification)
+print("LINT_1_95_wb:", LINT_1_95_wb)
 
-# plt.plot(np.linspace(0, 10, num=20),LINT_1_95_wb, color='red', linestyle='-', marker='o', label='LINT delta = 1',linewidth=2.0)
-# plt.plot(np.linspace(0, 10, num=20),LINT_2_95_wb, color='blue', linestyle='--', marker='s', label='LINT delta = 2',linewidth=2.0)
-# plt.plot(np.linspace(0, 10, num=20),LINT_3_95_wb, color='green', linestyle='-.', marker='^', label='LINT delta = 3',linewidth=2.0)
-# plt.plot(np.linspace(0, 10, num=20),LINT_4_95_wb, color='purple', linestyle=':', marker='d', label='LINT delta = 4',linewidth=2.0)
-# plt.plot(np.linspace(0, 10, num=20),LINT_5_95_wb, color='orange', linestyle='-', marker='v', label='LINT delta = 5',linewidth=2.0)
-# plt.plot(np.linspace(0, 10, num=20),LINT_6_95_wb, color='brown', linestyle='--', marker='x', label='LINT delta = 6',linewidth=2.0)
+# Calculate and print the median of LINT_1_95_wb
+median_LINT_1_95_wb = median(LINT_1_95_wb)
+print("Median of LINT_1_95_wb:", median_LINT_1_95_wb)
 
-plt.plot(np.linspace(0, 10, num=20),LINT_1_95_wb, color='red', linestyle=':', label='LINT delta = 1',linewidth=3.0)
-plt.plot(np.linspace(0, 10, num=20),LINT_2_95_wb, color='blue', linestyle=':', label='LINT delta = 2',linewidth=3.0)
-plt.plot(np.linspace(0, 10, num=20),LINT_3_95_wb, color='green', linestyle=':', label='LINT delta = 3',linewidth=3.0)
-plt.plot(np.linspace(0, 10, num=20),LINT_4_95_wb, color='purple', linestyle=':', label='LINT delta = 4',linewidth=3.0)
-plt.plot(np.linspace(0, 10, num=20),LINT_5_95_wb, color='orange', linestyle=':', label='LINT delta = 5',linewidth=3.0)
-plt.plot(np.linspace(0, 10, num=20),LINT_6_95_wb, color='brown', linestyle=':', label='LINT delta = 6',linewidth=3.0)
+# Print the LINT_2_95_wb list (for verification)
+print("LINT_2_95_wb:", LINT_2_95_wb)
+
+# Calculate and print the median of LINT_2_95_wb
+median_LINT_2_95_wb = median(LINT_2_95_wb)
+print("Median of LINT_2_95_wb:", median_LINT_2_95_wb)
+
+# Print the LINT_3_95_wb list (for verification)
+print("LINT_3_95_wb:", LINT_3_95_wb)
+
+# Calculate and print the median of LINT_3_95_wb
+median_LINT_3_95_wb = median(LINT_3_95_wb)
+print("Median of LINT_3_95_wb:", median_LINT_3_95_wb)
+
+# Print the LINT_4_95_wb list (for verification)
+print("LINT_4_95_wb:", LINT_4_95_wb)
+
+# Calculate and print the median of LINT_4_95_wb
+median_LINT_4_95_wb = median(LINT_4_95_wb)
+print("Median of LINT_4_95_wb:", median_LINT_4_95_wb)
+
+# Print the LINT_5_95_wb list (for verification)
+print("LINT_5_95_wb:", LINT_5_95_wb)
+
+# Calculate and print the median of LINT_5_95_wb
+median_LINT_5_95_wb = median(LINT_5_95_wb)
+print("Median of LINT_5_95_wb:", median_LINT_5_95_wb)
+
+# Print the LINT_6_95_wb list (for verification)
+print("LINT_6_95_wb:", LINT_6_95_wb)
+
+# Calculate and print the median of LINT_6_95_wb
+median_LINT_6_95_wb = median(LINT_6_95_wb)
+print("Median of LINT_6_95_wb:", median_LINT_6_95_wb)
+
+plt.plot(np.linspace(0, 10, num=20),LINT_1_95_wb, color='red', linestyle='-', label='LINT delta = 1',linewidth=2.0)
+plt.plot(np.linspace(0, 10, num=20),LINT_2_95_wb, color='blue', linestyle='--', label='LINT delta = 2',linewidth=2.0)
+plt.plot(np.linspace(0, 10, num=20),LINT_3_95_wb, color='green', linestyle='-.', label='LINT delta = 3',linewidth=2.0)
+plt.plot(np.linspace(0, 10, num=20),LINT_4_95_wb, color='purple', linestyle=':', label='LINT delta = 4',linewidth=2.0)
+plt.plot(np.linspace(0, 10, num=20),LINT_5_95_wb, color='orange', linestyle='-', label='LINT delta = 5',linewidth=2.0)
+plt.plot(np.linspace(0, 10, num=20),LINT_6_95_wb, color='brown', linestyle='--', label='LINT delta = 6',linewidth=2.0)
 
 plt.ylim([1,11])
 ax.set_xticks(range(1,11))
@@ -76,8 +121,8 @@ plt.ylabel(r'Slowdown', fontsize=28)
 plt.xlabel('Flow Size [Bytes]', fontsize=28)
 #plt.xlim([0, maxPkts])
 plt.tight_layout()
-plt.savefig('web_search_95p.pdf')
-plt.savefig('web_search_95p.png')
+plt.savefig('wb.pdf')
+plt.savefig('wb.png')
 exit()
 
 HPCC = 0

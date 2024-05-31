@@ -14,6 +14,17 @@ import os.path
 from os import path
 import numpy as np
 
+
+def median(data):
+    sorted_data = sorted(data)
+    n = len(sorted_data)
+    mid = n // 2
+    if n % 2 == 0:
+        return (sorted_data[mid - 1] + sorted_data[mid]) / 2.0
+    else:
+        return sorted_data[mid]
+    
+    
 #matplotlib.rcParams['ps.useafm'] = True
 #matplotlib.rcParams['pdf.use14corefonts'] = True
 #matplotlib.rcParams['text.usetex'] = True
@@ -49,6 +60,47 @@ LINT_6_99_fb = [float(line.split()[19]) for line in open(fb_file).readlines()[0:
 
 fb_x_axis = [int(line.split()[1]) for line in open(fb_file).readlines()[0:]] # fb flow sizes
 
+# Print the LINT_1_95_fb list (for verification)
+print("LINT_1_95_fb:", LINT_1_95_fb)
+
+# Calculate and print the median of LINT_1_95_fb
+median_LINT_1_95_fb = median(LINT_1_95_fb)
+print("Median of LINT_1_95_fb:", median_LINT_1_95_fb)
+
+# Print the LINT_2_95_fb list (for verification)
+print("LINT_2_95_fb:", LINT_2_95_fb)
+
+# Calculate and print the median of LINT_2_95_fb
+median_LINT_2_95_fb = median(LINT_2_95_fb)
+print("Median of LINT_2_95_fb:", median_LINT_2_95_fb)
+
+# Print the LINT_3_95_fb list (for verification)
+print("LINT_3_95_fb:", LINT_3_95_fb)
+
+# Calculate and print the median of LINT_3_95_fb
+median_LINT_3_95_fb = median(LINT_3_95_fb)
+print("Median of LINT_3_95_fb:", median_LINT_3_95_fb)
+
+# Print the LINT_4_95_fb list (for verification)
+print("LINT_4_95_fb:", LINT_4_95_fb)
+
+# Calculate and print the median of LINT_4_95_fb
+median_LINT_4_95_fb = median(LINT_4_95_fb)
+print("Median of LINT_4_95_fb:", median_LINT_4_95_fb)
+
+# Print the LINT_5_95_fb list (for verification)
+print("LINT_5_95_fb:", LINT_5_95_fb)
+
+# Calculate and print the median of LINT_5_95_fb
+median_LINT_5_95_fb = median(LINT_5_95_fb)
+print("Median of LINT_5_95_fb:", median_LINT_5_95_fb)
+
+# Print the LINT_6_95_fb list (for verification)
+print("LINT_6_95_fb:", LINT_6_95_fb)
+
+# Calculate and print the median of LINT_6_95_fb
+median_LINT_6_95_fb = median(LINT_6_95_fb)
+print("Median of LINT_6_95_fb:", median_LINT_6_95_fb)
 
 plt.plot(np.linspace(0, 10, num=20),LINT_1_95_fb, color='red', linestyle='-', label='LINT delta = 1',linewidth=2.0)
 plt.plot(np.linspace(0, 10, num=20),LINT_2_95_fb, color='blue', linestyle='--', label='LINT delta = 2',linewidth=2.0)
@@ -57,7 +109,6 @@ plt.plot(np.linspace(0, 10, num=20),LINT_4_95_fb, color='purple', linestyle=':',
 plt.plot(np.linspace(0, 10, num=20),LINT_5_95_fb, color='orange', linestyle='-', label='LINT delta = 5',linewidth=2.0)
 plt.plot(np.linspace(0, 10, num=20),LINT_6_95_fb, color='brown', linestyle='--', label='LINT delta = 6',linewidth=2.0)
 
-plt.ylim([1,11])
 ax.set_xticks(range(1,11))
 ax.set_xticklabels([str(x) if x < 1000 else str(int(x/1000. + .5)) + 'K' if x < 1000.**2 else str(int(x/1000.**2 + .5)) + 'M' for x in fb_x_axis[1::2]])
 
@@ -69,8 +120,7 @@ plt.ylabel(r'Slowdown', fontsize=28)
 plt.xlabel('Flow Size [Bytes]', fontsize=28)
 #plt.xlim([0, maxPkts])
 plt.tight_layout()
-plt.savefig('fb.pdf')
-plt.savefig('fb.png')
+plt.savefig('facebook_95p.png')
 exit()
 
 HPCC = 0
