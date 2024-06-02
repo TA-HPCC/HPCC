@@ -39,7 +39,7 @@ private:
 	static uint32_t EcmpHash(const uint8_t* key, size_t len, uint32_t seed);
 	void CheckAndSendPfc(uint32_t inDev, uint32_t qIndex);
 	void CheckAndSendResume(uint32_t inDev, uint32_t qIndex);
-	//For DINT
+	// DINT
 	void update_delta(uint32_t &flow_id, uint32_t comparator, int32_t &delta);
 	void update_telemetry_insertion_time(uint32_t &ifIndex, uint32_t pres_amt_bytes, int32_t& delta);
 	uint64_t dint_min(uint64_t v1,uint64_t v2);
@@ -88,14 +88,13 @@ public:
 
 	//LINT
 	const int64_t obs_window_lint = 1000;
-	const uint8_t alpha = 1; // Equals to 2^-1
-	const uint8_t delta = 6; // Equals to 2^-1
+	const uint8_t alpha = 1; // Equals to 2^-alpha
+	const uint8_t delta = 6; // Equals to 2^-delta
 
 	std::array<uint32_t,pCnt> pres_byte_cnt_reg;
 	std::array<uint32_t,pCnt> packets_cnt_reg;
 
 	std::array<Time,pCnt> previous_insertion_reg;
-	// std::array<uint64_t,pCnt> previous_bytes_reg; // For different PushHop approach
 
 	std::array<uint32_t,pCnt> past_device_obs_reg;
 	std::array<uint32_t,pCnt> past_reported_obs_reg;

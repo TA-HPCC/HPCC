@@ -20,15 +20,15 @@ const bit<48> obs_window = 1000000; // 1 Seg = 1000000 microseg
 *************************************************************************/
 
 
-register<bit<32>>(MAX_FLOWS) pres_byte_cnt_reg; // Check if it neede to report
-register<bit<32>>(MAX_FLOWS) telemetry_byte_cnt_reg; // Used to save byte count information to telemetry header (changes every tel_insertion_min_window)
-register<bit<32>>(MAX_FLOWS) packets_cnt_reg;
+register<bit<32>>(MAX_PORTS) pres_byte_cnt_reg; // Check if it neede to report
+register<bit<32>>(MAX_PORTS) telemetry_byte_cnt_reg; // Used to save byte count information to telemetry header (changes every tel_insertion_min_window) 
+register<bit<32>>(MAX_PORTS) packets_cnt_reg;
 
-register<time_t>(MAX_FLOWS) previous_insertion_reg;
+register<time_t>(MAX_PORTS) previous_insertion_reg;
 
 
-register<bit<32>>(MAX_FLOWS) past_device_obs_reg;
-register<bit<32>>(MAX_FLOWS) past_reported_obs_reg;
+register<bit<32>>(MAX_PORTS) past_device_obs_reg;
+register<bit<32>>(MAX_PORTS) past_reported_obs_reg;
 
 
 
@@ -38,8 +38,8 @@ register<bit<32>>(MAX_FLOWS) past_reported_obs_reg;
 *************************************************************************/
 
 
-/* Checks if a metric should be added to a packet */
-bit<1> report_metrics(inout bit<32> flow_id, in bit<32> pres_amt_bytes){
+
+bit<1> report_metrics(inout metadata meta, in bit<32> pres_amt_bytes){
 
     bit<1> report = 0;
 
@@ -49,10 +49,10 @@ bit<1> report_metrics(inout bit<32> flow_id, in bit<32> pres_amt_bytes){
     bit<32> past_reported_obs;
 
 
-    past_device_obs_reg.read(past_device_obs, flow_id);
-    past_reported_obs_reg.read(past_reported_obs, flow_id);
+    past_device_obs_reg.read(past_device_obs, meta.port_id);
+    past_reported_obs_reg.read(past_reported_obs, meta.port_id);
 
-    int<32> latest_device_obs = (current_obs - ((int<32>)past_device_obs))>>alpha;
+    int<32> latest_device_obs = (current_obs - ((int<32>)past_device_obs))>>alpha; 
     latest_device_obs = latest_device_obs + (int<32>)past_device_obs;
     if(past_device_obs == 0){
         latest_device_obs = current_obs;
@@ -67,15 +67,13 @@ bit<1> report_metrics(inout bit<32> flow_id, in bit<32> pres_amt_bytes){
         if(past_reported_obs == 0){
             latest_reported_obs = current_obs;
         }
-        past_reported_obs_reg.write(flow_id, (bit<32>)latest_reported_obs);
+        past_reported_obs_reg.write(meta.port_id, (bit<32>)latest_reported_obs);
     }
 
-    past_device_obs_reg.write(flow_id, (bit<32>)latest_device_obs);
+    past_device_obs_reg.write(meta.port_id, (bit<32>)latest_device_obs);
 
     return report;
 }
-
-
 
 
 
@@ -123,69 +121,67 @@ control MyIngress(inout headers hdr,
         size = 1024;
     }
 
-
-    action five_tuple_hash(){
-        hash(meta.flow_id,
-        HashAlgorithm.crc16,
-        (bit<16>)0,
-        {
-            hdr.ipv4.src_addr,
-            hdr.udp.src_port,
-            hdr.ipv4.dst_addr,
-            hdr.udp.dst_port,
-            hdr.ipv4.protocol
-        },
-        (bit<16>)0XFFFF
-        );
-    }
-
     apply {
         if (hdr.ipv4.isValid()){
             ipv4_lpm.apply();
             if(hdr.udp.isValid()){
-                five_tuple_hash();
+                meta.port_id = 0;//(bit<32>)standard_metadata.egress_spec;
 
-                bit<32> amt_packets;
-                bit<32> amt_bytes;
-                bit<32> tel_amt_bytes;
+                if(meta.port_id < (bit<32>)MAX_PORTS){
+                    bit<32> amt_packets;
+                    bit<32> amt_bytes;
+                    bit<32> tel_amt_bytes;
 
-                packets_cnt_reg.read(amt_packets, meta.flow_id);
-                amt_packets = amt_packets+1;
-                packets_cnt_reg.write(meta.flow_id, amt_packets);
+                    packets_cnt_reg.read(amt_packets, meta.port_id);
+                    amt_packets = amt_packets+1;
+                    packets_cnt_reg.write(meta.port_id, amt_packets);
 
-                pres_byte_cnt_reg.read(amt_bytes, meta.flow_id);
-                amt_bytes = amt_bytes+standard_metadata.packet_length;
-                pres_byte_cnt_reg.write(meta.flow_id,  amt_bytes);
+                    pres_byte_cnt_reg.read(amt_bytes, meta.port_id);
+                    amt_bytes = amt_bytes+standard_metadata.packet_length;
+                    pres_byte_cnt_reg.write(meta.port_id,  amt_bytes);
 
-                telemetry_byte_cnt_reg.read(tel_amt_bytes, meta.flow_id);   // Used for telemetry purpose
-                tel_amt_bytes = tel_amt_bytes+standard_metadata.packet_length;
-                telemetry_byte_cnt_reg.write(meta.flow_id,  tel_amt_bytes);
+                    telemetry_byte_cnt_reg.read(tel_amt_bytes, meta.port_id);   // Used for telemetry purpose
+                    tel_amt_bytes = tel_amt_bytes+standard_metadata.packet_length;
+                    telemetry_byte_cnt_reg.write(meta.port_id,  tel_amt_bytes);
 
-                time_t now = standard_metadata.ingress_global_timestamp;
+                    time_t now = standard_metadata.ingress_global_timestamp;
 
-                time_t previous_insertion;
-                previous_insertion_reg.read(previous_insertion, meta.flow_id);
+                    time_t previous_insertion;
+                    previous_insertion_reg.read(previous_insertion, meta.port_id);
 
-                if(previous_insertion == 0){
-                    previous_insertion = now;
-                    previous_insertion_reg.write(meta.flow_id, now);
-                }
-
-                if(now - previous_insertion >= obs_window){
-                    bit<1> report = report_metrics(meta.flow_id, amt_bytes);
-
-                    if(report == 1){
-                        meta.insert_tel = 1;
-
-                        meta.last_time = previous_insertion;
-                        meta.curr_time = now;
-                        previous_insertion_reg.write(meta.flow_id, now);
+                    if(previous_insertion == 0){
+                        previous_insertion = now;
+                        previous_insertion_reg.write(meta.port_id, now);
                     }
 
-                    pres_byte_cnt_reg.write(meta.flow_id, 0);
-                }
 
-                clone_I2E.apply();
+                    if(!hdr.telemetry.isValid()){
+                        hdr.telemetry.setValid();
+                        hdr.telemetry.hop_cnt = 0;
+                        hdr.ethernet.ether_type = TYPE_TELEMETRY;
+                        hdr.telemetry.next_header_type = TYPE_IPV4;
+                        hdr.telemetry.telemetry_data_sz = TEL_DATA_SZ;
+                    }
+
+
+                    if(now - previous_insertion >= obs_window){
+                        bit<1> report = report_metrics(meta, amt_bytes);
+
+                        if(report == 1){
+                            meta.insert_tel = 1;
+
+                            meta.last_time = previous_insertion;
+                            meta.curr_time = now;
+                            previous_insertion_reg.write(meta.port_id, now);
+                        }
+
+                        pres_byte_cnt_reg.write(meta.port_id, 0);
+                    }
+
+                    
+                    clone_I2E.apply();
+
+                }
             }
         }
     }
@@ -196,17 +192,6 @@ control MyIngress(inout headers hdr,
 *************************************************************************/
 
 void insert_telemetry(inout headers hdr, inout metadata meta, in bit<32> tel_amt_bytes){
-
-        if(!hdr.telemetry.isValid()){
-            hdr.ethernet.ether_type = TYPE_TELEMETRY;
-
-            hdr.telemetry.setValid();
-            hdr.telemetry.hop_cnt = 0;
-            hdr.telemetry.next_header_type = TYPE_IPV4;
-            hdr.telemetry.telemetry_data_sz = TEL_DATA_SZ;
-            hdr.telemetry.flow_id = meta.flow_id;
-        }
-
         if(hdr.telemetry.hop_cnt < MAX_HOPS){
             hdr.telemetry.hop_cnt = hdr.telemetry.hop_cnt + 1;
 
@@ -219,6 +204,7 @@ void insert_telemetry(inout headers hdr, inout metadata meta, in bit<32> tel_amt
                 hdr.tel_data[0].bos = 0;
 
             hdr.tel_data[0].sw_id = meta.sw_id;
+            hdr.tel_data[0].port_id = meta.port_id;
             if(hdr.telemetry.hop_cnt>1)
                 hdr.tel_data[0].amt_bytes = tel_amt_bytes - (bit<32>)(hdr.telemetry.hop_cnt-1)*(TEL_DATA_SZ) - TEL_H_SZ;
             else
@@ -227,7 +213,8 @@ void insert_telemetry(inout headers hdr, inout metadata meta, in bit<32> tel_amt
             hdr.tel_data[0].last_time = meta.last_time;
             hdr.tel_data[0].curr_time = meta.curr_time; // (bit<64>)(now - previous_insertion);
 
-            telemetry_byte_cnt_reg.write(meta.flow_id, 0);
+
+            telemetry_byte_cnt_reg.write(meta.port_id, 0);
         }
 }
 
@@ -280,11 +267,11 @@ control MyEgress(inout headers hdr,
         apply{
             if(hdr.ipv4.isValid() && hdr.udp.isValid()){
 
-
+                
                 sw_id.apply();
 
                 bit<32> tel_bytes;
-                telemetry_byte_cnt_reg.read(tel_bytes, meta.flow_id);
+                telemetry_byte_cnt_reg.read(tel_bytes, meta.port_id);
 
                 if(standard_metadata.instance_type == PKT_INSTANCE_TYPE_INGRESS_CLONE){
                     clone_lpm.apply();
@@ -293,7 +280,7 @@ control MyEgress(inout headers hdr,
                     if(meta.insert_tel == 1)
                         insert_telemetry(hdr, meta, tel_bytes);
 
-                    bit<32> truncate_sz = HEADERS_SZ+(bit<32>)hdr.telemetry.hop_cnt*TEL_DATA_SZ;
+                    bit<32> truncate_sz = L2_HEADERS_SZ+(bit<32>)hdr.telemetry.hop_cnt*TEL_DATA_SZ;
 
                     truncate(truncate_sz); // Remove user data from clone packet
                     hdr.ipv4.total_len = 28;
@@ -309,7 +296,7 @@ control MyEgress(inout headers hdr,
                         hdr.ethernet.ether_type = TYPE_IPV4;
                     }
                 }
-
+                
             }
         }
 }

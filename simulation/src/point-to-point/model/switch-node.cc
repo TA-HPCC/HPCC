@@ -68,7 +68,6 @@ SwitchNode::SwitchNode(){
 	previous_insertion_reg.fill(Time());
 	past_device_obs_reg.fill(0);
 	past_reported_obs_reg.fill(0);
-	// previous_bytes_reg.fill(0);
 }
 
 // Updates the dynamic threshold according to the SIMPLE MOVING AVERAGE function of the last k measured throughputs
@@ -148,7 +147,7 @@ bool SwitchNode::ReportMetrics(uint32_t &portId, uint32_t presAmtBytes) {
     uint32_t pastDeviceObs = past_device_obs_reg.at(portId);
     uint32_t pastReportedObs = past_reported_obs_reg.at(portId);
 
-    int32_t latestDeviceObs = (currentObs - static_cast<int32_t>(pastDeviceObs)) >> alpha;
+    int32_t latestDeviceObs = (currentObs - static_cast<int32_t>(pastDeviceObs)) >> alpha; // result of past checks predictor
     latestDeviceObs = latestDeviceObs + static_cast<int32_t>(pastDeviceObs);
     if (pastDeviceObs == 0)
     {
@@ -160,7 +159,7 @@ bool SwitchNode::ReportMetrics(uint32_t &portId, uint32_t presAmtBytes) {
     {
         report = true;
 
-        int32_t latestReportedObs = (currentObs - static_cast<int32_t>(pastReportedObs)) >> alpha;
+        int32_t latestReportedObs = (currentObs - static_cast<int32_t>(pastReportedObs)) >> alpha; // result of past reports predictor
         latestReportedObs = latestReportedObs + static_cast<int32_t>(pastReportedObs);
         if (pastReportedObs == 0)
         {
@@ -428,13 +427,13 @@ void SwitchNode::SwitchNotifyDequeue(uint32_t ifIndex, uint32_t qIndex, Ptr<Pack
 				{
 					previousInsertion = time;
 					previous_insertion_reg.at(ifIndex) = now;
-					ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
 				}
                 if (time - previousInsertion >= obs_window_lint) // Check interval between previous insertion and current time
 				{
 					bool report = ReportMetrics(ifIndex, amt_bytes);
 
 					if (report) {
+						// Insert telemetry
 						ih->PushHop(Simulator::Now().GetTimeStep(), m_txBytes[ifIndex], dev->GetQueue()->GetNBytesTotal(), dev->GetDataRate().GetBitRate());
 						previous_insertion_reg.at(ifIndex) = now;
 					}
