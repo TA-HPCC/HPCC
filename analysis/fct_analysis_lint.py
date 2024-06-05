@@ -21,13 +21,10 @@ if __name__=="__main__":
         # For example, here we list two CC: 1. HPCC-PINT with utgt=95,AI=50Mbps,pint_log_base=1.05,pint_prob=1; 2. HPCC with utgt=95,ai=50Mbps.
         # For the exact naming, please check ../simulation/mix/fct_*.txt output by the simulation.
         CCs = [
-                'hpccPint95ai50log1.050p1.000',
-                'hp95ai50',
-		'lint95ai50',
-		'dint95ai50',
-		#'lint95ai50',
-               # 'lint',
-               # 'dint',
+                'lint_100000',
+                'lint_10000',
+                'lint_1000',
+                'lint_100',
 
         ]
 

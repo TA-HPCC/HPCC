@@ -1,0 +1,13 @@
+# ignore build
+simulation/build/
+
+# ignore waf files
+simulation/waf-tools/
+simulation/.waf*
+
+simulation/.lock*
+simulation/mix/
+*.png
+*.pdf
+*.dat
+.vscode/*
