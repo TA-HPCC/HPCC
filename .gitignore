@@ -10,3 +10,4 @@ simulation/mix/
 *.png
 *.pdf
 *.dat
+.vscode/*
