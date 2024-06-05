@@ -1,6 +1,6 @@
 # HPCC-PINT simulation
 This is the simulator for HPCC, HPCC-PINT, HPCC-LINT, and HPCC-DINT, which are other versions of HPCC implementing PINT, LINT, and DINT protocols
-This simulator is modified from the HPCC-PINT repository, which is introduced in PINT: Probabilistic In-band Network Telemetry (ACM SIGCOMM 2020).
+This simulator is modified from the [HPCC-PINT](https://github.com/ProbabilisticINT/HPCC-PINT) repository, which is introduced in PINT: Probabilistic In-band Network Telemetry (ACM SIGCOMM 2020) and implements LINT and DINT based on the original [DINT](https://github.com/HenriqueBBrum/DINT) repository.
 
 ## NS-3 simulation
 The ns-3 simulation is under `simulation/`. Refer to the README.md under it for more details.
@@ -47,8 +47,8 @@ Refer to the README.md under it for more details.
 
 * Fig 8: `bash plotProbHPCC.sh`. Figures are called `ProbHPCC_PINT_wb.pdf` and `ProbHPCC_PINT_fb.pdf`.
 
-## More results
-More results of HPCC in various topologies and conditions can be seen in the paper.
+<!-- ## More results
+More results of HPCC in various topologies and conditions can be seen in the paper. -->
 
 ## Questions
 For technical questions, please create an issue in this repo, so other people can benefit from your questions. 
