@@ -1,6 +1,5 @@
 # HPCC NS-3 simulator
-This is the simulator for HPCC-PINT, an advanced version of HPCC with one byte overhead per packet, introduced in PINT: Probabilistic In-band Network Telemetry (SIGCOMM' 2020).
-
+This is the simulator for HPCC-PINT, HPCC-LINT, and HPCC-DINT, which are multiple versions of HPCC.
 It is based on NS-3 version 3.17.
 
 ## Quick Start
