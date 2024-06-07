@@ -48,6 +48,8 @@ if you use other values for your experiments or want to change the order, you ne
 
 5. `bash plotDINTWb.sh` (for web-search traffic) or `bash plotDINTFb.sh` (for facebook-hadoop traffic)
 
+
+
 ## Trace reader guide from original PINT repo (This experiment doesn't use trace reader)
 `trace_reader` is used to parse the .tr files output by the simulation.
 
