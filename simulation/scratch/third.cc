@@ -675,8 +675,6 @@ int main(int argc, char *argv[])
 		IntHeader::mode = IntHeader::PINT;
 	else if (cc_mode == 11) // DINT, use int
 		IntHeader::mode = IntHeader::NORMAL;
-	else if (cc_mode == 12) // LINT
-		IntHeader::mode = IntHeader::NORMAL;
 	else // others, no extra header
 		IntHeader::mode = IntHeader::NONE;
 

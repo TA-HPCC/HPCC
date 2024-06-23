@@ -61,12 +61,12 @@ public:
 	int log2apprx(int x, int b, int m, int l); // given x of at most b bits, use most significant m bits of x, calc the result in l bits
 
 	//DINT
-	const uint64_t tel_insertion_min_window = 1000;
-	const int64_t obs_window = 1000; // 1 Seg = 1000000 microseg
-	const uint64_t max_t = 10000;
+	const uint64_t tel_insertion_min_window = 1000000;
+	const int64_t obs_window = 1000000; // 1 Seg = 1000000 microseg
+	const uint64_t max_t = 10000000;
 
-	const int64_t alpha_1 = 5;
-	const int8_t alpha_2 = 2; //shift divisor
+	const int64_t alpha_1 = 17;
+	const int8_t alpha_2 = 4; //shift divisor
 
 
 	const int32_t k = 8;

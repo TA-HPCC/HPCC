@@ -16,10 +16,20 @@ import numpy as np
 import argparse
 
 parser = argparse.ArgumentParser(description='')
-parser.add_argument('-param', dest='param', action='store', default='k', help="alpha / k")
+parser.add_argument('-param', dest='param', action='store', default='k', help="alpha / k / obs_window")
 parser.add_argument('-topo', dest='topo', action='store', default='fat')
 parser.add_argument('-traf', dest='traffic', action='store', default='fb', help="fb or wb")
 args = parser.parse_args()
+
+# to find the median of fct, useful when all the line in the graph is almost identical
+def median(data):
+    sorted_data = sorted(data)
+    n = len(sorted_data)
+    mid = n // 2
+    if n % 2 == 0:
+        return (sorted_data[mid - 1] + sorted_data[mid]) / 2.0
+    else:
+        return sorted_data[mid]
 
 param = args.param
 topo = args.topo
@@ -52,33 +62,33 @@ DINT_4_99 = [float(line.split()[13]) for line in open(file).readlines()[0:]]    
 fb_x_axis = [int(line.split()[1]) for line in open(file).readlines()[0:]] # fb flow sizes
 
 if param == 'alpha' :
-    # Print the DINT_1_95_fb list (for verification)
-    print "DINT alpha 1.5:", DINT_1_95
+    # # Print the DINT_1_95_fb list (for verification)
+    # print "DINT alpha 1.5:", DINT_1_95
 
-    # Calculate and print the average of DINT_4_95_fb
-    average_DINT_alpha15_95_fb = sum(DINT_1_95) / len(DINT_1_95)
-    print "Average of DINT alpha 1.5:", average_DINT_alpha15_95_fb
+    # # Calculate and print the average of DINT_4_95_fb
+    # average_DINT_alpha15_95_fb = sum(DINT_1_95) / len(DINT_1_95)
+    # print "Average of DINT alpha 1.5:", average_DINT_alpha15_95_fb
 
-    # Print the DINT_1_95_fb list (for verification)
-    print "DINT alpha 1.25:", DINT_2_95
+    # # Print the DINT_1_95_fb list (for verification)
+    # print "DINT alpha 1.25:", DINT_2_95
 
-    # Calculate and print the average of DINT_4_95_fb
-    average_DINT_alpha125_95_fb = sum(DINT_2_95) / len(DINT_2_95)
-    print "Average of DINT alpha 1.25:", average_DINT_alpha125_95_fb
+    # # Calculate and print the average of DINT_4_95_fb
+    # average_DINT_alpha125_95_fb = sum(DINT_2_95) / len(DINT_2_95)
+    # print "Average of DINT alpha 1.25:", average_DINT_alpha125_95_fb
 
-    # Print the DINT_1_95_fb list (for verification)
-    print "DINT alpha 1.125:", DINT_3_95
+    # # Print the DINT_1_95_fb list (for verification)
+    # print "DINT alpha 1.125:", DINT_3_95
 
-    # Calculate and print the average of DINT_4_95_fb
-    average_DINT_alpha1125_95_fb = sum(DINT_3_95) / len(DINT_3_95)
-    print "Average of DINT alpha 1.125:", average_DINT_alpha1125_95_fb
+    # # Calculate and print the average of DINT_4_95_fb
+    # average_DINT_alpha1125_95_fb = sum(DINT_3_95) / len(DINT_3_95)
+    # print "Average of DINT alpha 1.125:", average_DINT_alpha1125_95_fb
 
-    # Print the DINT_1_95_fb list (for verification)
-    print "DINT alpha 1.0675:", DINT_4_95
+    # # Print the DINT_1_95_fb list (for verification)
+    # print "DINT alpha 1.0675:", DINT_4_95
 
-    # Calculate and print the average of DINT_4_95_fb
-    average_DINT_alpha10675_95_fb = sum(DINT_4_95) / len(DINT_4_95)
-    print "Average of DINT alpha 1.0675:", average_DINT_alpha10675_95_fb
+    # # Calculate and print the average of DINT_4_95_fb
+    # average_DINT_alpha10675_95_fb = sum(DINT_4_95) / len(DINT_4_95)
+    # print "Average of DINT alpha 1.0675:", average_DINT_alpha10675_95_fb
     
     plt.plot(np.linspace(0, 10, num=20),DINT_1_95, color='red', linestyle='-', label='DINT alpha = 1.5',linewidth=4.0)
     plt.plot(np.linspace(0, 10, num=20),DINT_2_95, color='blue', linestyle='--', label='DINT alpha = 1.25',linewidth=4.0)
@@ -86,38 +96,18 @@ if param == 'alpha' :
     plt.plot(np.linspace(0, 10, num=20),DINT_4_95, color='purple', linestyle=':', label='DINT alpha = 1.0675',linewidth=4.0)
     
 elif param == 'k' :
-    # Print the DINT_1_95_fb list (for verification)
-    print "DINT k 16:", DINT_1_95
-
-    # Calculate and print the average of DINT_4_95_fb
-    average_DINT_k16_95_fb = sum(DINT_1_95) / len(DINT_1_95)
-    print "Average of DINT k 16:", average_DINT_k16_95_fb
-
-    # Print the DINT_1_95_fb list (for verification)
-    print "DINT k 8:", DINT_2_95
-
-    # Calculate and print the average of DINT_4_95_fb
-    average_DINT_k8_95_fb = sum(DINT_2_95) / len(DINT_2_95)
-    print "Average of DINT k 8:", average_DINT_k8_95_fb
-
-    # Print the DINT_1_95_fb list (for verification)
-    print "DINT k 4:", DINT_3_95
-
-    # Calculate and print the average of DINT_4_95_fb
-    average_DINT_k4_95_fb = sum(DINT_3_95) / len(DINT_3_95)
-    print "Average of DINT k 4:", average_DINT_k4_95_fb
-
-    # Print the DINT_1_95_fb list (for verification)
-    print "DINT k 2:", DINT_4_95
-
-    # Calculate and print the average of DINT_4_95_fb
-    average_DINT_k2_95_fb = sum(DINT_4_95) / len(DINT_4_95)
-    print "Average of DINT k 2:", average_DINT_k2_95_fb
     
     plt.plot(np.linspace(0, 10, num=20),DINT_1_95, color='red', linestyle='-', label='DINT k = 16',linewidth=4.0)
     plt.plot(np.linspace(0, 10, num=20),DINT_2_95, color='blue', linestyle='--', label='DINT k = 8',linewidth=4.0)
     plt.plot(np.linspace(0, 10, num=20),DINT_3_95, color='green', linestyle='-.', label='DINT k = 4',linewidth=4.0)
     plt.plot(np.linspace(0, 10, num=20),DINT_4_95, color='purple', linestyle=':', label='DINT k = 2',linewidth=4.0)
+    
+elif param == 'obs_window' :
+    
+    plt.plot(np.linspace(0, 10, num=20),DINT_1_95, color='red', linestyle='-', label='DINT obs_window = 1 micro s',linewidth=4.0)
+    plt.plot(np.linspace(0, 10, num=20),DINT_2_95, color='blue', linestyle='--', label='DINT obs_window = 10 micro s',linewidth=4.0)
+    plt.plot(np.linspace(0, 10, num=20),DINT_3_95, color='green', linestyle='-.', label='DINT obs_window = 100 micro s',linewidth=4.0)
+    plt.plot(np.linspace(0, 10, num=20),DINT_4_95, color='purple', linestyle=':', label='DINT obs_window = 1ms',linewidth=4.0)
 
 
 plt.ylim([1,11])
