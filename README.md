@@ -15,7 +15,12 @@ Refer to the README.md under it for more details.
 ## Generating the figures in the paper
 1. Generate traffic workload at 50% load: `bash gen_traffic_files.sh`
 
-2. Run simulations: 
+2. Set error rate: `python set_error_rate.py <new error rate>`
+
+* By default the error rate is set to `0`
+
+
+3. Run simulations: 
 
 * First enter the folder and configure: `bash build.sh` 
 
@@ -37,7 +42,7 @@ Refer to the README.md under it for more details.
 
 * Each simulation will run for about 1 day.
 
-3. Get the fct analysis result
+4. Get the fct analysis result
 
 * First enter the folder `cd analysis`
 
