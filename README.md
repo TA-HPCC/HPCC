@@ -1,4 +1,4 @@
-# HPCC-PINT simulation
+# HPCC simulation
 This is the simulator for HPCC, HPCC-PINT, HPCC-LINT, and HPCC-DINT, which are other versions of HPCC implementing PINT, LINT, and DINT protocols
 This simulator is modified from the [HPCC-PINT](https://github.com/ProbabilisticINT/HPCC-PINT) repository, which is introduced in PINT: Probabilistic In-band Network Telemetry (ACM SIGCOMM 2020) and implements LINT and DINT based on the original [DINT](https://github.com/HenriqueBBrum/DINT) repository.
 

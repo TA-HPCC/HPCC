@@ -9,18 +9,18 @@ Usage: please check `python fct_analysis.py -h` and read line 20-26 in `fct_anal
 ## How To Use FCT Analysis scipts
 This is a short guide of how to use our analysis script, if needed you can change the script accordingly
 ### For plotting HPCC INT vs PINT vs LINT vs DINT
-1. run all the simulation and make sure all of the fct files are in simulation/mix (**if using our script, don't rename the fct files**)
-2. `bash plotWb.sh` (for web-search traffic) or `bash plotFb.sh` (for facebook-hadoop traffic)
+1. Run all the simulation and make sure all of the fct files are in simulation/mix (**if using our script, don't rename the fct files**)
+2. Run `bash plotWb.sh` (for web-search traffic) or `bash plotFb.sh` (for facebook-hadoop traffic)
 
 ### For plotting DINT parameter tuning
-1. run the simulation one by one with the diffrent parameters according to your need
+1. Run the simulation one by one with the diffrent parameters according to your need
 
-2. rename tail of the fct file name before running the next simulation according to this :
+2. Rename tail of the fct file name before running the next simulation according to this :
 - obs window : dint_[obs_window] ; example : fct_fat_fb50_b100_dint_1m.txt
 - alpha : dint_a[alpha value] ; example : fct_fat_fb50_b100_dint_a1.5.txt
 - k : dint_k[k value] ; example : fct_fat_fb50_b100_dint_k16.txt
 
-3. change line 24-27 of `fct_analysis_dint.py` to the files you just rename following this :
+3. Change line 24-27 of `fct_analysis_dint.py` to the files you just rename following this :
 - for obs window :
 ```
 'dint_1k',
@@ -44,9 +44,9 @@ This is a short guide of how to use our analysis script, if needed you can chang
 ```
 if you use other values for your experiments or want to change the order, you need to modify `plotDINT.py` accordingly
 
-4. modify `plotDINTwb.sh` or `plotDINTfb.sh` to suit your need. Check `fct_analysis_dint.py` and `plotDINT.py` for how to change the parameters to your needs
+4. Modify `plotDINTwb.sh` or `plotDINTfb.sh` to suit your needs. Check `fct_analysis_dint.py` and `plotDINT.py` for how to change the parameters to your needs
 
-5. `bash plotDINTWb.sh` (for web-search traffic) or `bash plotDINTFb.sh` (for facebook-hadoop traffic)
+5. Run `bash plotDINTWb.sh` (for web-search traffic) or `bash plotDINTFb.sh` (for facebook-hadoop traffic)
 
 
 
